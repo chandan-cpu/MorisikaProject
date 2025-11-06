@@ -2,7 +2,7 @@
 const User=require('../models/user.Model.Js');
 const jwt = require('jsonwebtoken');
 const bcrypt=require('bcryptjs');
-const { sendOTP } = require('./otp.controller');
+const { sendOTP, resetOTP } = require('./otp.controller');
 
 const userRegister=async(req,res)=>{
     const {name,email,password,Phonenumber,role}=req.body;
@@ -88,5 +88,22 @@ const getProfile = async (req, res) => {
   }
 };
 
+const forgetPassword=async(req,res)=>{
+    const {email}=req.body;
+    try {
+        const user=await User.findOne({email});
+        if(!user)
+        {
+            return res.status(404).json({msg:'User not found'});
+        }
+        await resetOTP(req,res);
 
-module.exports={userRegister,userLogin,getProfile};
+    } catch (error) {
+        return res.status(500).json({msg:'Server Error:'+ error.message});
+        
+    }
+}
+
+
+
+module.exports={userRegister,userLogin,getProfile,forgetPassword};
