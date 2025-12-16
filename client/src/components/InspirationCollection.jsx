@@ -16,7 +16,7 @@ const InspirationCollection = () => {
             Inspiration Collection
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            Explore our curated collection of Assamese artwork creations for inspiration.
           </p>
         </div>
 

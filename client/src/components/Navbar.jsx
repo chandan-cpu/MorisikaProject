@@ -1,10 +1,15 @@
 import { useState } from "react";
-import { Upload, ShoppingBag, Truck, Shield, Headphones, X, Menu } from 'lucide-react';
+import { Upload, ShoppingBag, Truck, Shield, Headphones, X, Menu, ShoppingCart } from 'lucide-react';
 
-import {Images} from '../data/mock'
+import { Images } from '../data/mock'
+import { Link, useNavigate } from "react-router-dom";
 
-const Navbar = () => {
+const Navbar = ({ onCartClick }) => {
+  const [cartCount, setCartCount] = useState(5);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const navigate = useNavigate();
+
 
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">
@@ -15,21 +20,44 @@ const Navbar = () => {
               <span className="text-white text-2xl font-bold"><img src={Images.logo} alt="Logo" className="w-12 h-12 rounded-full" /></span>
             </div>
           </div>
-          
+
           <div className="hidden md:flex space-x-8">
-            <a href="#home" className="text-gray-700 hover:text-teal-700 font-medium transition-colors">Home</a>
-            <a href="#services" className="text-gray-700 hover:text-teal-700 font-medium transition-colors">Services</a>
-            <a href="#creations" className="text-gray-700 hover:text-teal-700 font-medium transition-colors">Creations</a>
-            <a href="#products" className="text-gray-700 hover:text-teal-700 font-medium transition-colors">Products</a>
-            <a href="#gallery" className="text-gray-700 hover:text-teal-700 font-medium transition-colors">Gallery</a>
+            <Link to="/home" className="text-gray-700 hover:text-teal-700 font-medium transition-colors">Home</Link>
+            <Link to="services" className="text-gray-700 hover:text-teal-700 font-medium transition-colors">Services</Link>
+            <Link to="inspiration" className="text-gray-700 hover:text-teal-700 font-medium transition-colors">Creations</Link>
+            <Link to="browse" className="text-gray-700 hover:text-teal-700 font-medium transition-colors">Products</Link>
+            <Link to="gallery" className="text-gray-700 hover:text-teal-700 font-medium transition-colors">Gallery</Link>
           </div>
 
-          <button 
-            className="md:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            <Menu className="w-6 h-6 text-gray-700" />
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              aria-label="Cart"
+              className="relative p-2 rounded-full hover:bg-gray-100 transition"
+              onClick={onCartClick || (() => navigate('/cart'))}
+            >
+              <ShoppingCart className="w-6 h-6 text-gray-700" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-teal-600 text-white text-xs font-semibold rounded-full px-1.5 py-0.5 min-w-5 text-center">
+                  {cartCount}
+                </span>
+              )}
+            </button>
+            <Link
+              to="/login"
+              className="block text-gray-700 hover:text-teal-700 py-2"
+            >
+              Login
+            </Link>
+
+
+            <button
+              className="md:hidden p-2 rounded hover:bg-gray-100"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              <Menu className="w-6 h-6 text-gray-700" />
+            </button>
+          </div>
         </div>
 
         {mobileMenuOpen && (
@@ -38,7 +66,8 @@ const Navbar = () => {
             <a href="#services" className="block text-gray-700 hover:text-teal-700 py-2">Services</a>
             <a href="#creations" className="block text-gray-700 hover:text-teal-700 py-2">Creations</a>
             <a href="#products" className="block text-gray-700 hover:text-teal-700 py-2">Products</a>
-            <a href="#gallery" className="block text-gray-700 hover:text-teal-700 py-2">Gallery</a>
+            <a href="#gallery" className="block 
+            ztext-gray-700 hover:text-teal-700 py-2">Gallery</a>
           </div>
         )}
       </div>
