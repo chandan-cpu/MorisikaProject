@@ -25,11 +25,6 @@ const userRegister=async(req,res)=>{
         await newUser.save();
 
         await sendOTP(req,res);
-
-        // return res.status(201).json({msg:'User Registered Successfully',
-        //     user:   newUser,
-        //     token: token
-        // })
     }
     catch(error)
     {
@@ -39,6 +34,7 @@ const userRegister=async(req,res)=>{
 
 const userLogin=async(req,res)=>{
     const {email,password}=req.body;
+    console.log("Login attempt for email:", email);
     try{
         const user=await User.findOne({email});
         if(!user)
@@ -104,6 +100,11 @@ const forgetPassword=async(req,res)=>{
     }
 }
 
+const logOut=async(req,res)=>{
+    res.clearCookie('token');
+    return res.status(200).json({msg:'User logged out successfully'});
+}
 
 
-module.exports={userRegister,userLogin,getProfile,forgetPassword};
+
+module.exports={userRegister,userLogin,getProfile,forgetPassword,logOut};

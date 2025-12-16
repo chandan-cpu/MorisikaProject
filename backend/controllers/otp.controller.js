@@ -4,7 +4,6 @@ const User = require('../models/user.Model.Js');
 const crypto = require('crypto');
 let storeResetOTP = {};
 let verifiedEmails = {};
-let resetSessions = {}; // Store temporary session data
 
 const sendOTP = async (req, res) => {
 

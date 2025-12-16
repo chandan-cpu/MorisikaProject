@@ -10,7 +10,7 @@ const BeautifySection = () => {
               Beautify Your Space
             </h2>
             <p className="text-gray-600 mb-6 leading-relaxed">
-              Ea eximiad semper mi dicebat at labore et magna minim magna aliquip. Ea irurem magna aliqua aliquip et labore et enim aliqua labore aliqua aliqua labore.
+              Discover our exquisite Assamese artwork creations that add a touch of elegance and culture to your living space. Each piece is crafted with care, reflecting the rich heritage and artistic traditions of Assam.
             </p>
             <button className="bg-teal-700 hover:bg-teal-800 text-white px-8 py-3 rounded-full font-semibold shadow-lg transition-all transform hover:scale-105">
               LEARN MORE
