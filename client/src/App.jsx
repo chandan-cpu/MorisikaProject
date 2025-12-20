@@ -11,6 +11,11 @@ import Product from './components/Product/Product';
 import Login from './pages/Login';
 import CustomerDashboard from './pages/CustomerDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
+import { ToastContainer } from 'react-toastify';
+import { useDispatch } from 'react-redux';
+import { useEffect } from 'react';
+import { fetchUserProfile } from './redux/authThunk';
+import Testimonial from './components/Testimonial';
 
 // Landing Page Component
 const LandingPage = () => (
@@ -19,17 +24,37 @@ const LandingPage = () => (
     <InspirationCollection />
     <BeautifySection />
     <BrowseRange />
+    <Testimonial/>
     <Footer />
   </>
 );
 
 export default function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchUserProfile());
+  }, [dispatch]);
+  
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
-
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        className=""
+        bodyClassName="!text-xs sm:!text-sm"
+      />
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/browse" element={<BrowseRange />} />
 
         {/* Public routes */}
         <Route path="/products" element={<Product />} />

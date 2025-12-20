@@ -3,12 +3,16 @@ import { Upload, ShoppingBag, Truck, Shield, Headphones, X, Menu, ShoppingCart }
 
 import { Images } from '../data/mock'
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../redux/authSlice";
 
 const Navbar = ({ onCartClick }) => {
   const [cartCount, setCartCount] = useState(5);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navigate = useNavigate();
+  const user = useSelector((state) => state.auth.user);
+  const dispatch = useDispatch();
 
 
   return (
@@ -22,11 +26,11 @@ const Navbar = ({ onCartClick }) => {
           </div>
 
           <div className="hidden md:flex space-x-8">
-            <Link to="/home" className="text-gray-700 hover:text-teal-700 font-medium transition-colors">Home</Link>
-            <Link to="services" className="text-gray-700 hover:text-teal-700 font-medium transition-colors">Services</Link>
-            <Link to="inspiration" className="text-gray-700 hover:text-teal-700 font-medium transition-colors">Creations</Link>
-            <Link to="browse" className="text-gray-700 hover:text-teal-700 font-medium transition-colors">Products</Link>
-            <Link to="gallery" className="text-gray-700 hover:text-teal-700 font-medium transition-colors">Gallery</Link>
+            <Link to="/" className="text-gray-700 hover:text-teal-700 font-medium transition-colors">Home</Link>
+            <Link to="/browse" className="text-gray-700 hover:text-teal-700 font-medium transition-colors">Services</Link>
+            <Link to="/inspiration" className="text-gray-700 hover:text-teal-700 font-medium transition-colors">Creations</Link>
+            <Link to="/browse" className="text-gray-700 hover:text-teal-700 font-medium transition-colors">Products</Link>
+            <Link to="/gallery" className="text-gray-700 hover:text-teal-700 font-medium transition-colors">Gallery</Link>
           </div>
 
           <div className="flex items-center gap-3">
@@ -42,12 +46,25 @@ const Navbar = ({ onCartClick }) => {
                 </span>
               )}
             </button>
-            <Link
-              to="/login"
-              className="block text-gray-700 hover:text-teal-700 py-2"
-            >
-              Login
-            </Link>
+
+            {!user && (
+              <Link
+                to="/login"
+                className="block text-gray-700 hover:text-teal-700 py-2"
+              >
+                Login
+              </Link>
+            )}
+
+            {/* Token valid hai */}
+            {user && (
+              <button
+                onClick={() => dispatch(logout())}
+                className="block text-gray-700 hover:text-red-600 py-2"
+              >
+                Logout
+              </button>
+            )}
 
 
             <button
@@ -67,7 +84,7 @@ const Navbar = ({ onCartClick }) => {
             <a href="#creations" className="block text-gray-700 hover:text-teal-700 py-2">Creations</a>
             <a href="#products" className="block text-gray-700 hover:text-teal-700 py-2">Products</a>
             <a href="#gallery" className="block 
-            ztext-gray-700 hover:text-teal-700 py-2">Gallery</a>
+            ztext-gray-700 hover:text-teal-700 py-2">Testimonial</a>
           </div>
         )}
       </div>

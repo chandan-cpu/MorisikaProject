@@ -2,7 +2,7 @@ import { Upload, ShoppingBag, Truck, Shield, Headphones, X, Menu } from 'lucide-
 import { Images } from '../data/mock';
 const Hero = () => {
   return (
-    <section id="home" className="relative bg-gradient-to-br from-gray-50 to-gray-100">
+    <section id="home" className="relative bg-linear-to-br from-gray-50 to-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="relative">
           <div className="absolute inset-0 bg-opacity-40 rounded-3xl"></div>
@@ -32,7 +32,7 @@ const Hero = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="flex items-center space-x-4">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <Truck className="w-12 h-12 text-teal-700" />
               </div>
               <div>
@@ -42,7 +42,7 @@ const Hero = () => {
             </div>
 
             <div className="flex items-center space-x-4">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <Headphones className="w-12 h-12 text-teal-700" />
               </div>
               <div>
@@ -52,7 +52,7 @@ const Hero = () => {
             </div>
 
             <div className="flex items-center space-x-4">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <Shield className="w-12 h-12 text-teal-700" />
               </div>
               <div>

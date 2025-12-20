@@ -2,6 +2,7 @@ import { useSelector } from "react-redux";
 
 export default function CustomerDashboard() {
   const user = useSelector((state) => state.auth.user);
+  console.log("CustomerDashboard User:", user);
 
   return (
     <div className="p-6 text-center">

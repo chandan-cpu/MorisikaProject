@@ -34,8 +34,10 @@ const userRegister=async(req,res)=>{
 
 const userLogin=async(req,res)=>{
     const {email,password}=req.body;
-    console.log("Login attempt for email:", email);
+    console.log("Login attempt for email:", email,"Password:", password);
+
     try{
+        console.log("Searching for user with email:", email);
         const user=await User.findOne({email});
         if(!user)
         {
@@ -46,6 +48,7 @@ const userLogin=async(req,res)=>{
         const isMatch = await user.comparePassword(password);
 
         const token=user.generateToken();
+        console.log("Generated Token:", token);
 
         if(!isMatch)
         {
@@ -66,6 +69,10 @@ const userLogin=async(req,res)=>{
 
         return res.status(200).json({
             msg:"User Login Succesfully",
+            token:token,
+            user:{
+                id:user._id,
+                name:user.name,}
         })
     }
     catch(error){
@@ -74,7 +81,6 @@ const userLogin=async(req,res)=>{
 }
 const getProfile = async (req, res) => {
   try {
-    console.log('Authenticated User ID:', req.user._id);
     const user = await User.findById(req.user.id).select('-password');
     if (!user) return res.status(404).json({ msg: 'User not found' });
 
