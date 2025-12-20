@@ -55,6 +55,8 @@ export default function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/browse" element={<BrowseRange />} />
+        <Route path="/inspiration" element={<InspirationCollection />} />
+        <Route path="/testimonial" element={<Testimonial />} />
 
         {/* Public routes */}
         <Route path="/products" element={<Product />} />

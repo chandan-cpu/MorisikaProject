@@ -73,7 +73,7 @@ const Testimonial = () => {
             >
               <div className="flex mb-2 sm:mb-3">
                 {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 sm:w-5 sm:h-5 fill-amber-400 text-amber-400" />
+                  <Star key={i} className="w-4 h-4 sm:w-5 sm:h-5 fill-amber-100 text-amber-100" />
                 ))}
               </div>
               <p className="text-sm sm:text-base text-gray-700 mb-3 sm:mb-4 italic leading-relaxed">"{testimonial.text}"</p>

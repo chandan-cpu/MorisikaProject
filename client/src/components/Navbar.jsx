@@ -30,7 +30,7 @@ const Navbar = ({ onCartClick }) => {
             <Link to="/browse" className="text-gray-700 hover:text-teal-700 font-medium transition-colors">Services</Link>
             <Link to="/inspiration" className="text-gray-700 hover:text-teal-700 font-medium transition-colors">Creations</Link>
             <Link to="/browse" className="text-gray-700 hover:text-teal-700 font-medium transition-colors">Products</Link>
-            <Link to="/gallery" className="text-gray-700 hover:text-teal-700 font-medium transition-colors">Gallery</Link>
+            <Link to="/testimonial" className="text-gray-700 hover:text-teal-700 font-medium transition-colors">Testimonial</Link>
           </div>
 
           <div className="flex items-center gap-3">
