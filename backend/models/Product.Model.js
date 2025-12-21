@@ -18,13 +18,13 @@ const productSchema = new mongoose.Schema(
     description: {
       type: String,
       required: true,
-      Maxlength:1000,
+      Maxlength: 1000,
     },
 
     price: {
       type: Number,
       required: true,
-      min:50,
+      min: 50,
     },
 
     discountPrice: {
@@ -45,7 +45,7 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: true,
       default: 0,
-      min:0,
+      min: 0,
     },
 
     images: [
@@ -64,6 +64,26 @@ const productSchema = new mongoose.Schema(
       default: false,
     },
 
+    feedbacks: [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true
+        },
+        img: String,
+        rating: {
+          type: Number,
+          min: 1,
+          max: 5,
+          required: true
+        },
+        comment: {
+          type: String,
+          maxlength: 500
+        }
+      }
+    ],
     isActive: {
       type: Boolean,
       default: true,

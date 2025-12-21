@@ -1,15 +1,16 @@
-const Product = require("../models/Product");
+const Product =require('../models/Product.Model')
 
 //  Create Product
 const createProduct = async (req, res) => {
     const { name, slug, description, price, discountPrice, category, brand, stock, images, rating, featured } = req.body;
   try {
     const existingproduct=await Product.find({slug});
+    console.log(existingproduct[0].stock);
     if(existingproduct.length>0)
     {
-        Product.stock+=1;
+        existingproduct[0].stock+=stock;
         await existingproduct[0].save();
-        return res.status(200).json(existingproduct[0]);
+        return  res.status(200).json({message:"Product already exists. Stock updated.",product:existingproduct[0]});
     }
     if (!name || !slug || !price) {
       return res.status(400).json({ message: "Missing required fields: Name, Slug, and Price." });
@@ -23,7 +24,7 @@ const createProduct = async (req, res) => {
 
 //  Get All Products
 const getAllProducts = async (req, res) => {
-  const products = await Product.find({ isActive: true });
+  const products = await Product.find();
   res.json(products);
 };
 
