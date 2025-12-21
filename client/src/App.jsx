@@ -16,6 +16,7 @@ import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import { fetchUserProfile } from './redux/authThunk';
 import Testimonial from './components/Testimonial';
+import CustomOrderSection from './components/CustomOrderSection';
 
 // Landing Page Component
 const LandingPage = () => (
@@ -62,6 +63,7 @@ export default function App() {
         <Route path="/products" element={<Product />} />
         <Route path="/product/:slug" element={<Product />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/custom" element={<CustomOrderSection />} />
 
         {/* Protected Route (only after login) */}
         <Route

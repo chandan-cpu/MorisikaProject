@@ -1,14 +1,16 @@
 import { Upload, ShoppingBag, Truck, Shield, Headphones, X, Menu } from 'lucide-react';
 import { Images } from '../data/mock';
+import { Link, useNavigate } from 'react-router-dom';
 const Hero = () => {
+  const navigate = useNavigate();
   return (
     <section id="home" className="relative bg-linear-to-br from-gray-50 to-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="relative">
           <div className="absolute inset-0 bg-opacity-40 rounded-3xl"></div>
-          <img 
+          <img
             src={Images.heroImage}
-            alt="Assamese Art" 
+            alt="Assamese Art"
             className="w-full h-96 object-cover rounded-3xl"
           />
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4">
@@ -21,8 +23,12 @@ const Hero = () => {
             <p className="text-lg text-white mb-8 drop-shadow-lg max-w-2xl">
               Handcrafted frames celebrating Assamese heritage and culture
             </p>
-            <button className="bg-teal-700 hover:bg-teal-800 text-white px-10 py-4 rounded-full font-semibold text-lg shadow-xl transition-all transform hover:scale-105">
-              BUY NOW
+
+            <button
+              onClick={() => navigate("/browse")}
+              className="bg-teal-700 hover:bg-teal-800 text-white px-10 py-4 rounded-full font-semibold text-lg shadow-xl transition-all transform hover:scale-105"
+            >
+              Shop Now
             </button>
           </div>
         </div>

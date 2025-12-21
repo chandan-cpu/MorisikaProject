@@ -1,3 +1,7 @@
+import { Upload } from "lucide-react";
+import { useRef } from "react";
+import { useState } from "react";
+
 const CustomOrderSection = () => {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -219,3 +223,4 @@ const CustomOrderSection = () => {
     </section>
   );
 };
+export default CustomOrderSection;
