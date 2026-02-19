@@ -1,9 +1,11 @@
+const dns = require('dns');
 const express=require('express');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const connectDb = require('./config/db');
 const authRoutes=require('./routes/auth.routes');
-const productRoutes=require('./routes/product.routes')
+const productRoutes=require('./routes/product.routes.js')
+const cloudeRoute=require('./routes/upload')
 
 require('dotenv').config();
 const app=express();
@@ -18,11 +20,9 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-// app.use('/',(req,res)=>{
-//     res.send('Moriskia Backend Server is Running');
-// })
 
 app.use('/api/auth',authRoutes);
+// app.use('/api/upload',cloudeRoute);
 
 //Product Routes
 app.use('/api/product',productRoutes);

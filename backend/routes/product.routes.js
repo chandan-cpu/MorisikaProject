@@ -1,9 +1,9 @@
 const express=require('express');
-const { createProduct, getAllProducts } = require('../controllers/product.controller');
+const { createProduct} = require('../controllers/product.controller');
 const routes=express.Router();
+const upload=require('../middlewares/upload')
 
-routes.post('/add-Product',createProduct)
-console.log('Product Routes Loaded');
-routes.get('/getAllProducts',getAllProducts)
+
+routes.post('/upload',upload.array("images",10),createProduct)
 
 module.exports =routes;

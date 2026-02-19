@@ -1,45 +1,83 @@
-const Product =require('../models/Product.Model')
+const Product = require('../models/Product.Model');
+const cloudinary = require('../config/cloudinary');
+const streamifier = require("streamifier");
+const slugify = require('slugify');
 
-//  Create Product
 const createProduct = async (req, res) => {
-    const { name, slug, description, price, discountPrice, category, brand, stock, images, rating, featured } = req.body;
   try {
-    const existingproduct=await Product.find({slug});
-    console.log(existingproduct[0].stock);
-    if(existingproduct.length>0)
-    {
-        existingproduct[0].stock+=stock;
-        await existingproduct[0].save();
-        return  res.status(200).json({message:"Product already exists. Stock updated.",product:existingproduct[0]});
+    const {
+      name,
+      description,
+      price,
+      discountPrice,
+      category,
+      brand,
+      stock,
+      featured
+    } = req.body;
+console.log("reached create product controller");
+    //Array to store the image URLs
+    let imageUrls = [];
+
+    //If user uploaded the images
+    if (req.files && req.files.length > 0) {
+
+      //loop through each file and upload to cloudinary
+      for (const file of req.files) {
+
+        // Detect resource type
+        let resourceType = "image";
+        if (file.mimetype === "application/pdf") {
+          resourceType = "raw"; // Cloudinary uses "raw" for PDF
+        }
+        //upload buffer to cloudinary
+
+        const result= await new Promise((resolve,reject)=>{
+          const stream=cloudinary.uploader.upload_stream(
+            {
+              folder: "uploads",
+              resource_type: resourceType,
+            },
+            (error,result)=>{
+              if(error){
+                return reject(error);
+              }
+              resolve(result);
+            }
+          )
+           streamifier.createReadStream(file.buffer).pipe(stream);
+        })
+        imageUrls.push(result.secure_url);
+      
+      }
     }
-    if (!name || !slug || !price) {
-      return res.status(400).json({ message: "Missing required fields: Name, Slug, and Price." });
-    }
-    const product = await Product.create(req.body);
-    res.status(201).json(product);
+
+    // Create product using your schema
+    const product = new Product({
+      name,
+      slug: slugify(name, { lower: true }),
+      description,
+      price,
+      discountPrice,
+      category,
+      brand,
+      stock,
+      featured,
+      images: imageUrls
+    })
+    await product.save();
+    res.status(201).json({
+      success: true,
+      message: "Product created successfully",
+      product
+    })
   } catch (error) {
-    res.status(400).json({ msg: error.message });
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error"
+    })
   }
-};
+}
 
-//  Get All Products
-const getAllProducts = async (req, res) => {
-  const products = await Product.find();
-  res.json(products);
-};
-
-//  Get Single Product by Slug
-const getProductBySlug = async (req, res) => {
-  const product = await Product.findOne({ slug: req.params.slug });
-
-  if (!product)
-    return res.status(404).json({ msg: "Product not found" });
-
-  res.json(product);
-};
-
-module.exports = {
-  createProduct,
-  getAllProducts,
-  getProductBySlug,
-};
+module.exports = { createProduct };
