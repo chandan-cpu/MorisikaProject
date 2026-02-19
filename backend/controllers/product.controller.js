@@ -75,9 +75,87 @@ console.log("reached create product controller");
     console.error(error);
     res.status(500).json({
       success: false,
-      message: "Server Error"
+      message: "Server Error",
+      error: error.message
     })
   }
 }
 
-module.exports = { createProduct };
+const updateProduct= async (req,res)=>{
+  try {
+    const productId=req.params.id;
+
+    //finding the product by id
+    const product =await Product.findById(productId);
+    if(!product){
+      return res.status(404).json({
+        success: false,
+        message: "Product not found"
+      })
+    }
+
+    //update text fields if provided
+    const fields = [
+      "name",
+      "description",
+      "price",
+      "discountPrice",
+      "category",
+      "brand",
+      "stock",
+      "featured",
+      "isActive"
+    ];
+
+    fields.forEach(field=>{
+      if(req.body[field]!==undefined)
+      {
+        product[field]=req.body[field];
+      }
+    })
+       // update slug if name changed
+    if (req.body.name) {
+      product.slug = slugify(req.body.name, { lower: true });
+    }
+
+    if(req.files && req.files.length>0){
+      let newImageUrls=[];
+
+      for(const file of req.files){
+        const result= await new Promise((resolve,reject)=>{
+          const stream=cloudinary.uploader.upload_stream(
+            {
+              folder: "uploads",
+              resource_type: file.mimetype === "application/pdf" ? "raw" : "image"
+            },
+            (error,result)=>{
+              if(error){
+                return reject(error);
+              }
+              resolve(result);
+            }
+          )
+           streamifier.createReadStream(file.buffer).pipe(stream);
+        })
+        newImageUrls.push(result.secure_url);
+      }
+      product.images=newImageUrls;
+    }
+
+    await product.save();
+    res.status(200).json({
+      success: true,
+      message: "Product updated successfully",
+      product
+    })
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error: error.message
+    })
+  }
+}
+
+module.exports = { createProduct, updateProduct };
