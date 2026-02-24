@@ -2,6 +2,7 @@ const Product = require('../models/Product.Model');
 const cloudinary = require('../config/cloudinary');
 const streamifier = require("streamifier");
 const slugify = require('slugify');
+const { default: mongoose } = require('mongoose');
 
 const createProduct = async (req, res) => {
   try {
@@ -158,4 +159,84 @@ const updateProduct= async (req,res)=>{
   }
 }
 
-module.exports = { createProduct, updateProduct };
+const deleteProduct=async(req,res)=>{
+  try{
+    const productId=req.params.id;
+
+    //Check Ifn the id is valid or not
+    if(!mongoose.Types.ObjectId.isValid(productId)){
+      return res.status(400).json({
+        success:false,
+        message:"Invalid Product ID"
+      })
+    }
+    const product=await Product.findById(productId);
+    if(!product)
+    {
+      return res.status(404).json({
+        success:false,
+        message:"Product not found"
+      })
+    }
+    await Product.findByIdAndDelete(productId);
+    res.status(200).json({
+      success:true,
+      message:"Product deleted successfully"
+    })
+  }
+  catch(error){
+    return res.status(500).json({
+      success:false,
+      message:"Server Error",
+      error:error.message
+    })
+  }
+}
+
+const getAllProduct=async(req,res)=>{
+  try{
+    //Sanitize & Valid Pagination
+
+    //This is a ofset Paginantion where we skip the number of records based on the page number and limit and then we take the next set of records based on the limit
+    // const page=Math.max(1,parseInt(req.query.page ||1));
+    // let limit =parseInt(req.queary.limit ||10);
+    // limit=Math.min(limit,50);  //Hard limit to prevent abuse
+
+    // const skip=(page-1)*limit;
+    const limit=parseInt(req.query.limit ||10);
+    const lastId=req.query.lastId;
+
+    let query={isActive:true};
+
+    //Agar lastId provided hai to uske baad ke records fetch karo
+    if(lastId){
+      query._id={$lt:lastId}; //Fetch records with id less than lastId for next page
+    }
+
+    //Search and catagories filter
+
+    if(req.query.search){
+      query.name={$regex:req.query.search, $options:'i'};
+    }
+
+    const products=await Product.find(query)
+    .sort({_id:-1}) //Sort by newest first
+    .limit(limit).lean(); //Use lean for faster queries when you don't need mongoose documents
+
+    res.json({
+      products,
+      nextCursor:products.length>0?products[products.length-1]._id:null, //Next cursor for pagination
+      hasMore:products.length===limit //If we got the number of products equal to limit, there might be more products to fetch
+    })
+  }
+  catch(error){
+    console.error(error);
+    res.status(500).json({
+      success:false,
+      message:"Server Error",
+      error:error.message
+    })
+  }
+}
+
+module.exports = { createProduct, updateProduct, deleteProduct,getAllProduct };

@@ -79,12 +79,11 @@ const Navbar = ({ onCartClick }) => {
 
         {mobileMenuOpen && (
           <div className="md:hidden py-4 space-y-2">
-            <a href="#home" className="block text-gray-700 hover:text-teal-700 py-2">Home</a>
-            <a href="#services" className="block text-gray-700 hover:text-teal-700 py-2">Services</a>
-            <a href="#creations" className="block text-gray-700 hover:text-teal-700 py-2">Creations</a>
-            <a href="#products" className="block text-gray-700 hover:text-teal-700 py-2">Products</a>
-            <a href="#gallery" className="block 
-            ztext-gray-700 hover:text-teal-700 py-2">Testimonial</a>
+            <a href="/" className="block text-gray-700 hover:text-teal-700 py-2">Home</a>
+            <a href="/browse" className="block text-gray-700 hover:text-teal-700 py-2">Services</a>
+            <a href="/inspiration" className="block text-gray-700 hover:text-teal-700 py-2">Creations</a>
+            <a href="/browse" className="block text-gray-700 hover:text-teal-700 py-2">Products</a>
+            <a href="/testimonial" className="block text-gray-700 hover:text-teal-700 py-2">Testimonial</a>
           </div>
         )}
       </div>
