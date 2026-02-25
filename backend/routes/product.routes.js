@@ -5,7 +5,7 @@ const upload=require('../middlewares/upload')
 
 
 routes.post('/upload',upload.array("images",10),createProduct)
-routes.post('/update/:id',upload.array("images",5),updateProduct)
+routes.put('/update/:id',upload.array("images",5),updateProduct)
 routes.delete('/delete/:id',deleteProduct);
 routes.get('/all',getAllProduct);
 

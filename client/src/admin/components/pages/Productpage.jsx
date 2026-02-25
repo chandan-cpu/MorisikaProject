@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Package,
   Plus,
@@ -13,53 +13,66 @@ import {
   Tags,
   LogOut,
 } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { createProduct, fetchAllProducts } from "../../../redux/productThunk";
 const Productpage = () => {
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      name: "Premium Chocolate Hamper",
-      category: "Chocolates",
-      price: 1299,
-      stock: 15,
-      status: "active",
-      image:
-        "https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=100&h=100&fit=crop",
-      description: "Assorted premium chocolates gift box",
-    },
-    {
-      id: 2,
-      name: "Birthday Surprise Box",
-      category: "Birthday Gifts",
-      price: 899,
-      stock: 8,
-      status: "active",
-      image:
-        "https://images.unsplash.com/photo-1607344645866-009c320b63e0?w=100&h=100&fit=crop",
-      description: "Complete birthday celebration package",
-    },
-    {
-      id: 3,
-      name: "Rose Bouquet",
-      category: "Flowers",
-      price: 599,
-      stock: 20,
-      status: "active",
-      image:
-        "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=100&h=100&fit=crop",
-      description: "Fresh red roses bouquet",
-    },
-    {
-      id: 4,
-      name: "Teddy Bear Combo",
-      category: "Soft Toys",
-      price: 749,
-      stock: 12,
-      status: "active",
-      image:
-        "https://images.unsplash.com/photo-1555685812-4b743f2b05a8?w=100&h=100&fit=crop",
-      description: "Cute teddy bear with chocolates",
-    },
-  ]);
+  //   const [products, setProducts] = useState([
+  //     {
+  //       id: 1,
+  //       name: "Premium Chocolate Hamper",
+  //       category: "Chocolates",
+  //       price: 1299,
+  //       stock: 15,
+  //       status: "active",
+  //       image:
+  //         "https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=100&h=100&fit=crop",
+  //       description: "Assorted premium chocolates gift box",
+  //     },
+  //     {
+  //       id: 2,
+  //       name: "Birthday Surprise Box",
+  //       category: "Birthday Gifts",
+  //       price: 899,
+  //       stock: 8,
+  //       status: "active",
+  //       image:
+  //         "https://images.unsplash.com/photo-1607344645866-009c320b63e0?w=100&h=100&fit=crop",
+  //       description: "Complete birthday celebration package",
+  //     },
+  //     {
+  //       id: 3,
+  //       name: "Rose Bouquet",
+  //       category: "Flowers",
+  //       price: 599,
+  //       stock: 20,
+  //       status: "active",
+  //       image:
+  //         "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=100&h=100&fit=crop",
+  //       description: "Fresh red roses bouquet",
+  //     },
+  //     {
+  //       id: 4,
+  //       name: "Teddy Bear Combo",
+  //       category: "Soft Toys",
+  //       price: 749,
+  //       stock: 12,
+  //       status: "active",
+  //       image:
+  //         "https://images.unsplash.com/photo-1555685812-4b743f2b05a8?w=100&h=100&fit=crop",
+  //       description: "Cute teddy bear with chocolates",
+  //     },
+  //   ]);
+
+  const dispatch = useDispatch();
+
+  const { products, loading, isError, errorMessage } = useSelector(
+    (state) => state.product,
+  );
+
+  useEffect(() => {
+    // Fetch products from backend
+    dispatch(fetchAllProducts());
+  }, [dispatch]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
@@ -79,11 +92,13 @@ const Productpage = () => {
   const [errors, setErrors] = useState({});
 
   // Filter products based on search
-  const filteredProducts = products.filter(
-    (product) =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  console.log("Products from Redux:", products);
+  //   const filteredProducts = products.products
+  // .filter(
+  //     (product) =>
+  //       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //       product.category.toLowerCase().includes(searchTerm.toLowerCase()),
+  //   );
 
   // Form validation
   const validateForm = () => {
@@ -98,38 +113,39 @@ const Productpage = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   // Handle form submit
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
+      const submitData = new FormData();
+
+      submitData.append("name", formData.name);
+      submitData.append("description", formData.description);
+      submitData.append("price", formData.price);
+      submitData.append("category", formData.category);
+      submitData.append("stock", formData.stock);
+      submitData.append("status", formData.status);
+
+      if (formData.imageFile) {
+        submitData.append("images", formData.imageFile);
+      } else if (formData.image) {
+        submitData.append("image", formData.image); // Purani image URL (editing ke liye)
+      }
+
       if (editingProduct) {
         // Update existing product
-        setProducts(
-          products.map((p) =>
-            p.id === editingProduct.id
-              ? {
-                  ...formData,
-                  id: editingProduct.id,
-                  price: Number(formData.price),
-                  stock: Number(formData.stock),
-                }
-              : p,
-          ),
+        // Note: Data yahan dataToSend (FormData) jayega
+        dispatch(
+          updateProduct({ id: editingProduct._id, formData: submitData }),
         );
       } else {
-        // Add new product
-        setProducts([
-          ...products,
-          {
-            ...formData,
-            id: Date.now(),
-            price: Number(formData.price),
-            stock: Number(formData.stock),
-          },
-        ]);
+        // Create new product
+        dispatch(createProduct(submitData));
       }
-      closeModal();
     }
   };
 
@@ -168,9 +184,10 @@ const Productpage = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
-        setFormData({ ...formData, image: reader.result });
+        // setFormData({ ...formData, image: reader.result });
       };
       reader.readAsDataURL(file);
+      setFormData({ ...formData, imageFile: file });
     }
   };
 
@@ -225,15 +242,15 @@ const Productpage = () => {
 
       {/* Products Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredProducts.map((product) => (
+        {products?.products?.map((product) => (
           <div
-            key={product.id}
+            key={product._id}
             className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all"
           >
             {/* Product Image */}
             <div className="h-48 overflow-hidden bg-gray-100">
               <img
-                src={product.image}
+                src={product.images?.[0]}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />
@@ -322,9 +339,8 @@ const Productpage = () => {
                   <input
                     type="text"
                     value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
+                    onChange={handleInputChange}
+                    name="name"
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                   />
                   {errors.name && (
@@ -338,9 +354,8 @@ const Productpage = () => {
                   </label>
                   <textarea
                     value={formData.description}
-                    onChange={(e) =>
-                      setFormData({ ...formData, description: e.target.value })
-                    }
+                    onChange={handleInputChange}
+                    name="description"
                     rows="3"
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                   />
@@ -358,9 +373,8 @@ const Productpage = () => {
                   <input
                     type="number"
                     value={formData.price}
-                    onChange={(e) =>
-                      setFormData({ ...formData, price: e.target.value })
-                    }
+                    onChange={handleInputChange}
+                    name="price"
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                   />
                   {errors.price && (
@@ -375,9 +389,8 @@ const Productpage = () => {
                   <input
                     type="number"
                     value={formData.stock}
-                    onChange={(e) =>
-                      setFormData({ ...formData, stock: e.target.value })
-                    }
+                    onChange={handleInputChange}
+                    name="stock"
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                   />
                   {errors.stock && (
@@ -391,9 +404,8 @@ const Productpage = () => {
                   </label>
                   <select
                     value={formData.category}
-                    onChange={(e) =>
-                      setFormData({ ...formData, category: e.target.value })
-                    }
+                    onChange={handleInputChange}
+                    name="category"
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                   >
                     <option>Birthday Gifts</option>
@@ -410,9 +422,8 @@ const Productpage = () => {
                   </label>
                   <select
                     value={formData.status}
-                    onChange={(e) =>
-                      setFormData({ ...formData, status: e.target.value })
-                    }
+                    onChange={handleInputChange}
+                    name="status"
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                   >
                     <option value="active">Active</option>
