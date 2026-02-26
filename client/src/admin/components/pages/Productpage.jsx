@@ -14,67 +14,11 @@ import {
   LogOut,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { createProduct, fetchAllProducts } from "../../../redux/productThunk";
+import { createProduct, deleteProduct, fetchAllProducts, updateProduct } from "../../../redux/productThunk";
 const Productpage = () => {
-  //   const [products, setProducts] = useState([
-  //     {
-  //       id: 1,
-  //       name: "Premium Chocolate Hamper",
-  //       category: "Chocolates",
-  //       price: 1299,
-  //       stock: 15,
-  //       status: "active",
-  //       image:
-  //         "https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=100&h=100&fit=crop",
-  //       description: "Assorted premium chocolates gift box",
-  //     },
-  //     {
-  //       id: 2,
-  //       name: "Birthday Surprise Box",
-  //       category: "Birthday Gifts",
-  //       price: 899,
-  //       stock: 8,
-  //       status: "active",
-  //       image:
-  //         "https://images.unsplash.com/photo-1607344645866-009c320b63e0?w=100&h=100&fit=crop",
-  //       description: "Complete birthday celebration package",
-  //     },
-  //     {
-  //       id: 3,
-  //       name: "Rose Bouquet",
-  //       category: "Flowers",
-  //       price: 599,
-  //       stock: 20,
-  //       status: "active",
-  //       image:
-  //         "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=100&h=100&fit=crop",
-  //       description: "Fresh red roses bouquet",
-  //     },
-  //     {
-  //       id: 4,
-  //       name: "Teddy Bear Combo",
-  //       category: "Soft Toys",
-  //       price: 749,
-  //       stock: 12,
-  //       status: "active",
-  //       image:
-  //         "https://images.unsplash.com/photo-1555685812-4b743f2b05a8?w=100&h=100&fit=crop",
-  //       description: "Cute teddy bear with chocolates",
-  //     },
-  //   ]);
 
-  const dispatch = useDispatch();
 
-  const { products, loading, isError, errorMessage } = useSelector(
-    (state) => state.product,
-  );
-
-  useEffect(() => {
-    // Fetch products from backend
-    dispatch(fetchAllProducts());
-  }, [dispatch]);
-
-  const [searchTerm, setSearchTerm] = useState("");
+const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -91,14 +35,20 @@ const Productpage = () => {
   const [imagePreview, setImagePreview] = useState("");
   const [errors, setErrors] = useState({});
 
-  // Filter products based on search
-  console.log("Products from Redux:", products);
-  //   const filteredProducts = products.products
-  // .filter(
-  //     (product) =>
-  //       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //       product.category.toLowerCase().includes(searchTerm.toLowerCase()),
-  //   );
+
+  const dispatch = useDispatch();
+
+
+  const { products, loading, isError, errorMessage } = useSelector(
+    (state) => state.product,
+  );
+
+  useEffect(() => {
+    // Fetch products from backend
+    dispatch(fetchAllProducts());
+ 
+  }, [dispatch]);
+
 
   // Form validation
   const validateForm = () => {
@@ -147,6 +97,8 @@ const Productpage = () => {
         dispatch(createProduct(submitData));
       }
     }
+    closeModal();
+    dispatch(fetchAllProducts());
   };
 
   // Handle edit
@@ -168,11 +120,12 @@ const Productpage = () => {
   // Handle delete
   const handleDelete = (product) => {
     setProductToDelete(product);
+    dispatch(deleteProduct(product._id));
     setDeleteModalOpen(true);
+    closeModal();
   };
 
   const confirmDelete = () => {
-    setProducts(products.filter((p) => p.id !== productToDelete.id));
     setDeleteModalOpen(false);
     setProductToDelete(null);
   };
@@ -190,6 +143,7 @@ const Productpage = () => {
       setFormData({ ...formData, imageFile: file });
     }
   };
+  console.log("Products in state:", products);
 
   // Close modal and reset form
   const closeModal = () => {
@@ -242,7 +196,7 @@ const Productpage = () => {
 
       {/* Products Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products?.products?.map((product) => (
+        {products.map((product,i) => (
           <div
             key={product._id}
             className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all"
