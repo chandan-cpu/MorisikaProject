@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { createProduct, deleteProduct, fetchAllProducts, updateProduct } from "../../../redux/productThunk";
+import { toast } from "react-toastify";
 const Productpage = () => {
 
 
@@ -34,6 +35,7 @@ const [searchTerm, setSearchTerm] = useState("");
   });
   const [imagePreview, setImagePreview] = useState("");
   const [errors, setErrors] = useState({});
+  const [zoomImage, setZoomImage] = useState(null);
 
 
   const dispatch = useDispatch();
@@ -88,12 +90,22 @@ const [searchTerm, setSearchTerm] = useState("");
 
       if (editingProduct) {
         // Update existing product
-        await dispatch(
+        const result = await dispatch(
           updateProduct({ id: editingProduct._id, formData: submitData }),
         );
+        if (result.meta.requestStatus === "fulfilled") {
+          toast.success("Product updated successfully!");
+        } else {
+          toast.error(result.payload || "Failed to update product");
+        }
       } else {
         // Create new product
-        await dispatch(createProduct(submitData));
+        const result = await dispatch(createProduct(submitData));
+        if (result.meta.requestStatus === "fulfilled") {
+          toast.success("Product created successfully!");
+        } else {
+          toast.error(result.payload || "Failed to create product");
+        }
       }
     }
     closeModal();
@@ -118,12 +130,18 @@ const [searchTerm, setSearchTerm] = useState("");
   // Handle delete
   const handleDelete = (product) => {
     setProductToDelete(product);
-    dispatch(deleteProduct(product._id));
     setDeleteModalOpen(true);
-    closeModal();
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
+    if (productToDelete) {
+      const result = await dispatch(deleteProduct(productToDelete._id));
+      if (result.meta.requestStatus === "fulfilled") {
+        toast.success("Product deleted successfully!");
+      } else {
+        toast.error(result.payload || "Failed to delete product");
+      }
+    }
     setDeleteModalOpen(false);
     setProductToDelete(null);
   };
@@ -200,11 +218,11 @@ const [searchTerm, setSearchTerm] = useState("");
             className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all"
           >
             {/* Product Image */}
-            <div className="h-48 overflow-hidden bg-gray-100">
+            <div className="h-48 overflow-hidden bg-gray-100 cursor-pointer" onClick={() => setZoomImage(product.images?.[0])}>
               <img
                 src={product.images?.[0]}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
               />
             </div>
 
@@ -473,6 +491,29 @@ const [searchTerm, setSearchTerm] = useState("");
                 Cancel
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Image Zoom Modal */}
+      {zoomImage && (
+        <div
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 cursor-pointer"
+          onClick={() => setZoomImage(null)}
+        >
+          <div className="relative max-w-4xl max-h-[90vh] w-full flex items-center justify-center">
+            <button
+              onClick={() => setZoomImage(null)}
+              className="absolute -top-10 right-0 text-white hover:text-gray-300 transition-colors"
+            >
+              <X className="w-8 h-8" />
+            </button>
+            <img
+              src={zoomImage}
+              alt="Zoomed product"
+              className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
           </div>
         </div>
       )}
