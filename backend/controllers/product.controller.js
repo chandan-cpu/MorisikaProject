@@ -120,6 +120,20 @@ const updateProduct= async (req,res)=>{
     }
 
     if(req.files && req.files.length>0){
+      // Delete old images from Cloudinary before uploading new ones
+      if (product.images && product.images.length > 0) {
+        for (const url of product.images) {
+          const publicId = getPublicIdFromUrl(url);
+          if (publicId) {
+            try {
+              await cloudinary.uploader.destroy(publicId);
+            } catch (err) {
+              console.error(`Failed to delete old Cloudinary image ${publicId}:`, err.message);
+            }
+          }
+        }
+      }
+
       let newImageUrls=[];
 
       for(const file of req.files){
@@ -159,11 +173,42 @@ const updateProduct= async (req,res)=>{
   }
 }
 
+// Helper: extract Cloudinary public_id from a secure_url
+const getPublicIdFromUrl = (url) => {
+  try {
+    // URL format: https://res.cloudinary.com/<cloud>/image/upload/v123/uploads/filename.ext
+    const parts = url.split('/upload/');
+    if (parts.length < 2) return null;
+    const pathWithVersion = parts[1]; // e.g. "v123/uploads/filename.ext"
+    // Remove the version prefix (v123/)
+    const withoutVersion = pathWithVersion.replace(/^v\d+\//, '');
+    // Remove file extension
+    const publicId = withoutVersion.replace(/\.[^/.]+$/, '');
+    return publicId;
+  } catch {
+    return null;
+  }
+};
+
+// Helper: delete an array of Cloudinary images
+const deleteCloudinaryImages = async (imageUrls) => {
+  for (const url of imageUrls) {
+    const publicId = getPublicIdFromUrl(url);
+    if (publicId) {
+      try {
+        await cloudinary.uploader.destroy(publicId);
+      } catch (err) {
+        console.error(`Failed to delete Cloudinary image ${publicId}:`, err.message);
+      }
+    }
+  }
+};
+
 const deleteProduct=async(req,res)=>{
   try{
     const productId=req.params.id;
 
-    //Check Ifn the id is valid or not
+    //Check If the id is valid or not
     if(!mongoose.Types.ObjectId.isValid(productId)){
       return res.status(400).json({
         success:false,
@@ -178,6 +223,12 @@ const deleteProduct=async(req,res)=>{
         message:"Product not found"
       })
     }
+
+    // Delete images from Cloudinary before removing product
+    if (product.images && product.images.length > 0) {
+      await deleteCloudinaryImages(product.images);
+    }
+
     await Product.findByIdAndDelete(productId);
     res.status(200).json({
       success:true,

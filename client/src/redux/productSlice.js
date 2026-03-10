@@ -87,7 +87,8 @@ const productSlice = createSlice({
             })
             .addCase(deleteProduct.fulfilled, (state, action) => {
                 state.loading = false;
-                const deletedId = action.payload.id || action.payload._id;
+                // action.payload is the plain productId string returned from the thunk
+                const deletedId = action.payload;
 
                 if (Array.isArray(state.products)) {
                     state.products = state.products.filter(p => p._id !== deletedId);

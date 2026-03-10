@@ -68,7 +68,7 @@ const [searchTerm, setSearchTerm] = useState("");
   };
 
   // Handle form submit
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
       const submitData = new FormData();
@@ -88,17 +88,15 @@ const [searchTerm, setSearchTerm] = useState("");
 
       if (editingProduct) {
         // Update existing product
-        // Note: Data yahan dataToSend (FormData) jayega
-        dispatch(
+        await dispatch(
           updateProduct({ id: editingProduct._id, formData: submitData }),
         );
       } else {
         // Create new product
-        dispatch(createProduct(submitData));
+        await dispatch(createProduct(submitData));
       }
     }
     closeModal();
-    dispatch(fetchAllProducts());
   };
 
   // Handle edit
