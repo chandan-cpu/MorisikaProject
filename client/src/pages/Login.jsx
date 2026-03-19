@@ -34,14 +34,13 @@ export default function LoginPage() {
   }
 const handelSubmit = async (e) => {
   e.preventDefault();
-  //We dinot used try-catch here because createAsyncThunk already handles errors internally
-
-    //Dispatch the loginUser thunk and wait for it to complete
-
+  try {
     const response = await dispatch(loginUser(formData)).unwrap();
-    localStorage.setItem("token", response.token);
-
     navigate("/customer");
+  } catch (err) {
+    // Error is already handled by the rejected case in authSlice
+    // toast will show via the useEffect above
+  }
 };
 
   return (

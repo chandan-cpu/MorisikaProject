@@ -1,6 +1,5 @@
 const sendEmail = require('../config/sendEmail');
-const { findOne } = require('../models/user.Model.Js');
-const User = require('../models/user.Model.Js');
+const User = require('../models/user.Model');
 const crypto = require('crypto');
 let storeResetOTP = {};
 let verifiedEmails = {};
@@ -82,7 +81,7 @@ const verifyOTP = async (req, res) => {
         const user = await User.findOne({ email });
         if (!user) return res.status(404).json({ message: 'User not found' });
 
-        if (user.otp !== otp || user.otpExpire < Date.now()) {
+        if (user.otp !== Number(otp) || user.otpExpire < Date.now()) {
             return res.status(400).json({ message: 'Invalid or expired OTP' });
         }
 

@@ -1,5 +1,5 @@
 const cron=require('node-cron');
-const User=require('../models/user.Model.Js');
+const User=require('../models/user.Model');
 
 cron.schedule('*/5 * * * *',async () => {
 

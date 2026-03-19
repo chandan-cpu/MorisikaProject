@@ -74,12 +74,10 @@ userSchema.methods.comparePassword = async function (enteredPassword) {
 }
 
 userSchema.methods.generateToken = function () {
-    const token = jwt.sign({ id: this._id, email: this.email }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ id: this._id, email: this.email, role: this.role }, process.env.JWT_SECRET, {
         expiresIn: '7d'
     })
     return token;
 }
 
-
-mongoose.model('User', userSchema);
-module.exports = mongoose.model('User');
+module.exports = mongoose.model('User', userSchema);

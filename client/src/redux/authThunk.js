@@ -18,21 +18,18 @@ export const fetchUserProfile=createAsyncThunk(
     "auth/loadUserProfile",
     async(__, {rejectWithValue})=>{
         try {
-            const token = localStorage.getItem("token");
-            if (!token) return rejectWithValue("No token");
-
             const res=await axios.get('/auth/profile',
                 {
                     withCredentials:true,
                 }
             )
-             return res.data.user
+             return res.data;
         } catch (error) {
-            if(error.response || error.response.status===400)
+            if(error.response && error.response.status===401)
             {
-                return rejectWithValue("Invalid email or password");
+                return rejectWithValue("Session expired, please login again");
             }
-              return rejectWithValue("Sign-in");
+              return rejectWithValue("Failed to load profile");
         }
     }
 )

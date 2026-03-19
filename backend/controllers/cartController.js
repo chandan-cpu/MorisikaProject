@@ -1,0 +1,91 @@
+const { model } = require('mongoose');
+const mongoose = require('mongoose');
+const Cart = require('../models/Cart.model')
+const Order = require('../models/Order.model')
+const Product = require('../models/Product.Model');
+
+const productAddedToCart = async (req, res) => {
+    const userId = req.user.id;
+    const { productId } = req.params;
+    try {
+        const cartExists = await Cart.findOneAndUpdate(
+            { user: userId, 'items.product': productId },
+            { $inc: { 'items.$.quantity': 1 } }
+        )
+        if (!cartExists) {
+            const product = await Product.findById(productId);
+            await Cart.findOneAndUpdate(
+                { user: userId },
+                { $push: { items: { product: productId, quantity: 1, priceAtAddition: product.price } } },
+                { upsert: true }
+            );
+        }
+
+     const updatedCartData = await Cart.aggregate([
+      { $match: { user: new mongoose.Types.ObjectId(userId) } },
+      { $unwind: "$items" },
+      {
+        $lookup: {
+          from: "products",
+          localField: "items.product",
+          foreignField: "_id",
+          as: "details"
+        }
+      },
+      { $unwind: "$details" },
+      {
+        $project: {
+          _id: 0,
+          productId: "$items.product",
+          quantity: "$items.quantity",
+          name: "$details.name",
+          price: "$details.price",
+          image: { $arrayElemAt: ["$details.images", 0] }
+        }
+      }
+    ]);
+
+    return res.status(200).json({ 
+      msg: 'Updated successfully', 
+      cartItems: updatedCartData 
+    });
+
+
+    }
+    catch (error) {
+        return res.status(500).json({ msg: "Error: " + error.message });
+    }
+};
+
+const removeFromCart = async (req, res) => {
+    const userId = req.user.id;
+    const { productId } = req.params;
+    try {
+        const cart = await Cart.findOne({ user: userId });
+        if (!cart) {
+            return res.status(404).json({ msg: "Cart not found" });
+        }
+
+        const updatedCart = await Cart.findOneAndUpdate(
+            { user: userId },
+            { $pull: { items: { product: productId } } },
+            { new: true }
+        ).populate('items.product');
+
+        if (!updatedCart) {
+            return res.status(404).json({ msg: "Cart not found" });
+        }
+
+        return res.status(200).json({
+            msg: "Item removed successfully",
+            cart: updatedCart
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            msg: "Server Error: " + error.message
+        });
+    }
+}
+
+module.exports = { productAddedToCart, removeFromCart }

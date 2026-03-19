@@ -6,6 +6,7 @@ const connectDb = require('./config/db');
 const authRoutes=require('./routes/auth.routes');
 const productRoutes=require('./routes/product.routes.js')
 const cloudeRoute=require('./routes/upload')
+const orderAndCartRoutes=require('./routes/orderAndCart.routes');
 
 require('dotenv').config();
 const app=express();
@@ -26,6 +27,9 @@ app.use('/api/auth',authRoutes);
 
 //Product Routes
 app.use('/api/product',productRoutes);
+
+//order and cart routes
+app.use('/api/cart',orderAndCartRoutes);
 
 require('./config/cleanUp');
 

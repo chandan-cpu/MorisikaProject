@@ -1,5 +1,5 @@
 // const mongoose=require('mongoose');
-const User=require('../models/user.Model.Js');
+const User=require('../models/user.Model');
 const jwt = require('jsonwebtoken');
 const bcrypt=require('bcryptjs');
 const { sendOTP, resetOTP } = require('./otp.controller');
@@ -20,8 +20,6 @@ const userRegister=async(req,res)=>{
             role,
         });
 
-        const token=newUser.generateToken();
-     
         await newUser.save();
 
         await sendOTP(req,res);
@@ -34,45 +32,47 @@ const userRegister=async(req,res)=>{
 
 const userLogin=async(req,res)=>{
     const {email,password}=req.body;
-    console.log("Login attempt for email:", email,"Password:", password);
+    console.log("Login attempt for email:", email);
 
     try{
-        console.log("Searching for user with email:", email);
         const user=await User.findOne({email});
         if(!user)
         {
             return res.status(400).json({msg:'Invalid Email or Password'})
         }
-        const isVerified=user.isVerified;
 
+        // 1. Check password FIRST before doing anything else
         const isMatch = await user.comparePassword(password);
-
-        const token=user.generateToken();
-        console.log("Generated Token:", token);
-
         if(!isMatch)
         {
             return res.status(400).json({msg:'Invalid Email or Password'});
         }
-        res.cookie('token', token, {
-            httpOnly: true,
-         
-              secure: false, // true in production
-            maxAge: 24 * 60 * 60 * 1000, // 1 day
-        })
-        const otpSend=user.isVerified;
-        if(!otpSend){
+
+        // 2. Check OTP verification
+        if(!user.isVerified){
             return res.status(403).json({
                 msg:"OTP not verified",
             })
         }
 
+        // 3. Generate token ONLY after all checks pass
+        const token=user.generateToken();
+
+        // 4. Set cookie ONLY after all checks pass
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: false, // true in production
+            maxAge: 24 * 60 * 60 * 1000, // 1 day
+        })
+
         return res.status(200).json({
-            msg:"User Login Succesfully",
+            msg:"User Login Successfully",
             token:token,
             user:{
                 id:user._id,
-                name:user.name,}
+                name:user.name,
+                role:user.role,
+            }
         })
     }
     catch(error){

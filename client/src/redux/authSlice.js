@@ -38,7 +38,7 @@ const authSlice = createSlice({
         .addCase(loginUser.rejected, (state, action) => {
           state.loading = false;
           state.isError = true;
-          state.errorMessage = action.payload.msg || "Login Failed";
+          state.errorMessage = action.payload?.msg || "Login Failed";
         })
 
         //Fetch User Profile

@@ -1,121 +1,13 @@
-import React, { useState } from 'react';
-
-// Dummy product data
-const products = [
-  {
-    id: 1,
-    name: 'Wireless Headphones',
-    price: 79.99,
-    originalPrice: 129.99,
-    rating: 4.5,
-    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop',
-    slug: 'wireless-headphones'
-  },
-  {
-    id: 2,
-    name: 'Smart Watch',
-    price: 199.99,
-    originalPrice: 299.99,
-    rating: 4.7,
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop',
-    slug: 'smart-watch'
-  },
-  {
-    id: 3,
-    name: 'Laptop Stand',
-    price: 49.99,
-    originalPrice: 79.99,
-    rating: 4.3,
-    image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400&h=400&fit=crop',
-    slug: 'laptop-stand'
-  },
-  {
-    id: 4,
-    name: 'Mechanical Keyboard',
-    price: 129.99,
-    originalPrice: 199.99,
-    rating: 4.8,
-    image: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=400&h=400&fit=crop',
-    slug: 'mechanical-keyboard'
-  },
-  {
-    id: 5,
-    name: 'USB-C Hub',
-    price: 39.99,
-    originalPrice: 59.99,
-    rating: 4.2,
-    image: 'https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400&h=400&fit=crop',
-    slug: 'usb-c-hub'
-  },
-  {
-    id: 6,
-    name: 'Webcam HD',
-    price: 89.99,
-    originalPrice: 149.99,
-    rating: 4.6,
-    image: 'https://images.unsplash.com/photo-1587826080692-f439cd0b70da?w=400&h=400&fit=crop',
-    slug: 'webcam-hd'
-  },
-  {
-    id: 7,
-    name: 'Phone Case',
-    price: 24.99,
-    originalPrice: 39.99,
-    rating: 4.4,
-    image: 'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=400&h=400&fit=crop',
-    slug: 'phone-case'
-  },
-  {
-    id: 8,
-    name: 'Portable Charger',
-    price: 34.99,
-    originalPrice: 54.99,
-    rating: 4.5,
-    image: 'https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=400&h=400&fit=crop',
-    slug: 'portable-charger'
-  },
-  {
-    id: 9,
-    name: 'Bluetooth Speaker',
-    price: 59.99,
-    originalPrice: 99.99,
-    rating: 4.7,
-    image: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=400&fit=crop',
-    slug: 'bluetooth-speaker'
-  },
-  {
-    id: 10,
-    name: 'Gaming Mouse',
-    price: 69.99,
-    originalPrice: 109.99,
-    rating: 4.6,
-    image: 'https://images.unsplash.com/photo-1527814050087-3793815479db?w=400&h=400&fit=crop',
-    slug: 'gaming-mouse'
-  },
-  {
-    id: 11,
-    name: 'Monitor 27"',
-    price: 299.99,
-    originalPrice: 449.99,
-    rating: 4.8,
-    image: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=400&h=400&fit=crop',
-    slug: 'monitor-27'
-  },
-  {
-    id: 12,
-    name: 'Desk Lamp',
-    price: 44.99,
-    originalPrice: 69.99,
-    rating: 4.3,
-    image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=400&h=400&fit=crop',
-    slug: 'desk-lamp'
-  }
-];
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchAllProducts } from '../../redux/productThunk';
 
 
 // ProductCard Component
 const ProductCard = ({ product, onCardClick }) => {
-  const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+  const discount = product.discountPrice > 0
+    ? Math.round(((product.price - product.discountPrice) / product.price) * 100)
+    : 0;
   
   return (
     <div
@@ -124,7 +16,7 @@ const ProductCard = ({ product, onCardClick }) => {
     >
       <div className="aspect-square overflow-hidden bg-gray-100">
         <img
-          src={product.image}
+          src={product.images?.[0]}
           alt={product.name}
           className="w-full h-full object-cover"
         />
@@ -133,22 +25,32 @@ const ProductCard = ({ product, onCardClick }) => {
         <h3 className="text-sm sm:text-base font-medium text-gray-500 mb-2 line-clamp-2">
           {product.name}
         </h3>
-        <div className="flex items-center gap-2 mb-2">
-          <div className="flex items-center gap-1 bg-green-600 text-white text-xs px-2 py-0.5 rounded">
-            <span>{product.rating}</span>
-            <span>★</span>
+        {product.rating > 0 && (
+          <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-1 bg-green-600 text-white text-xs px-2 py-0.5 rounded">
+              <span>{product.rating}</span>
+              <span>★</span>
+            </div>
           </div>
-        </div>
+        )}
         <div className="flex items-center gap-2 flex-wrap">
-          <p className="text-lg sm:text-xl font-bold text-gray-900">
-            ₹{product.price.toFixed(2)}
-          </p>
-          <p className="text-sm text-gray-400 line-through">
-            ₹{product.originalPrice.toFixed(2)}
-          </p>
-          <p className="text-sm text-green-600 font-medium">
-            {discount}% off
-          </p>
+          {discount > 0 ? (
+            <>
+              <p className="text-lg sm:text-xl font-bold text-gray-900">
+                ₹{product.discountPrice}
+              </p>
+              <p className="text-sm text-gray-400 line-through">
+                ₹{product.price}
+              </p>
+              <p className="text-sm text-green-600 font-medium">
+                {discount}% off
+              </p>
+            </>
+          ) : (
+            <p className="text-lg sm:text-xl font-bold text-gray-900">
+              ₹{product.price}
+            </p>
+          )}
         </div>
       </div>
     </div>
@@ -157,15 +59,23 @@ const ProductCard = ({ product, onCardClick }) => {
 
 // ProductPage Component
 const ProductPage = ({ onProductClick }) => {
+  const dispatch = useDispatch();
+  const { products, loading, isError, errorMessage } = useSelector((state) => state.product);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [priceRange, setPriceRange] = useState('all');
   const [sortBy, setSortBy] = useState('default');
   const [showFilters, setShowFilters] = useState(false);
   const [showSort, setShowSort] = useState(false);
 
+  useEffect(() => {
+    dispatch(fetchAllProducts());
+  }, [dispatch]);
+
   // Filter and sort products
-  let filteredProducts = products.filter(product => 
+  let filteredProducts = (products || []).filter(product => 
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
+    
   );
 
   // Price filter
@@ -346,17 +256,37 @@ const ProductPage = ({ onProductClick }) => {
           {filteredProducts.length} {filteredProducts.length === 1 ? 'Product' : 'Products'}
         </span>
       </div>
-      
-      {filteredProducts.length > 0 ? (
+
+      {loading && (
+        <div className="flex justify-center items-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-600"></div>
+        </div>
+      )}
+
+      {isError && (
+        <div className="text-center py-12">
+          <p className="text-red-500 text-lg">{errorMessage}</p>
+          <button
+            onClick={() => dispatch(fetchAllProducts())}
+            className="mt-3 px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
+      {!loading && !isError && filteredProducts.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
           {filteredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} onCardClick={onProductClick} />
+            <ProductCard key={product._id} product={product} onCardClick={onProductClick} />
           ))}
         </div>
       ) : (
-        <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">No products found matching your criteria.</p>
-        </div>
+        !loading && !isError && (
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">No products found matching your criteria.</p>
+          </div>
+        )
       )}
     </div>
   );
@@ -364,7 +294,8 @@ const ProductPage = ({ onProductClick }) => {
 
 // ProductDetails Component
 const ProductDetails = ({ slug, onBackClick }) => {
-  const product = products.find((p) => p.slug === slug);
+  const { products } = useSelector((state) => state.product);
+  const product = (products || []).find((p) => p.slug === slug);
 
   if (!product) {
     return (
@@ -392,7 +323,7 @@ const ProductDetails = ({ slug, onBackClick }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 p-4 sm:p-6 lg:p-8">
           <div className="w-full aspect-square overflow-hidden rounded-lg bg-gray-100">
             <img
-              src={product.image}
+              src={product.images?.[0]}
               alt={product.name}
               className="w-full h-full object-cover"
             />
@@ -402,7 +333,7 @@ const ProductDetails = ({ slug, onBackClick }) => {
               {product.name}
             </h1>
             <p className="text-2xl sm:text-3xl font-bold text-slate-700">
-              ${product.price.toFixed(2)}
+              ₹{product.discountPrice > 0 ? product.discountPrice : product.price}
             </p>
             <div className="space-y-2 sm:space-y-3">
               <div className="flex items-center text-yellow-500 text-sm sm:text-base">
@@ -410,10 +341,7 @@ const ProductDetails = ({ slug, onBackClick }) => {
                 <span className="ml-2 text-gray-600">(4.8/5)</span>
               </div>
               <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                Experience premium quality with our {product.name}. Designed for 
-                performance and style, this product delivers exceptional value 
-                and reliability for your everyday needs. Perfect for both personal 
-                and professional use.
+                {product.description || "No description available for this product."} 
               </p>
             </div>
             <div className="space-y-2 sm:space-y-3 pt-2 sm:pt-4">
