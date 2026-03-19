@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const Cart = require('../models/Cart.model')
 const Order = require('../models/Order.model')
 const Product = require('../models/Product.Model');
+const { getAggregatedCart } = require('../utils/cartHelper');
 
 const productAddedToCart = async (req, res) => {
     const userId = req.user.id;
@@ -21,29 +22,7 @@ const productAddedToCart = async (req, res) => {
             );
         }
 
-     const updatedCartData = await Cart.aggregate([
-      { $match: { user: new mongoose.Types.ObjectId(userId) } },
-      { $unwind: "$items" },
-      {
-        $lookup: {
-          from: "products",
-          localField: "items.product",
-          foreignField: "_id",
-          as: "details"
-        }
-      },
-      { $unwind: "$details" },
-      {
-        $project: {
-          _id: 0,
-          productId: "$items.product",
-          quantity: "$items.quantity",
-          name: "$details.name",
-          price: "$details.price",
-          image: { $arrayElemAt: ["$details.images", 0] }
-        }
-      }
-    ]);
+   const updatedCartData = await getAggregatedCart(userId);
 
     return res.status(200).json({ 
       msg: 'Updated successfully', 
@@ -88,4 +67,15 @@ const removeFromCart = async (req, res) => {
     }
 }
 
-module.exports = { productAddedToCart, removeFromCart }
+const getCart=async(req,res)=>{
+    const userId = req.user.id;
+    try {
+        const cartData = await getAggregatedCart(userId);
+        return res.status(200).json({ cartItems: cartData });
+    } catch (error) {
+        return res.status(500).json({ msg: "Server Error: " + error.message });
+    }
+
+}
+
+module.exports = { productAddedToCart, removeFromCart, getCart }
