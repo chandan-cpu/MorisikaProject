@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchCart } from "./cartThunk"; // Import your fetch thunk
+import { addToCart, fetchCart, removeFromCart, updateQuantity } from "./cartThunk"; // Import your fetch thunk
 import { logoutUser } from "./authThunk";
 
 const cartSlice = createSlice({
@@ -19,6 +19,32 @@ const cartSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+    .addCase(addToCart.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addToCart.fulfilled, (state, action) => {
+        state.loading = false;
+        state.cartItems = action.payload.cartItems || action.payload; // Update with the new cart items
+        state.error = null;
+      })
+      .addCase(addToCart.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(removeFromCart.pending, (state) => {
+        state.loading = true;
+      })
+
+      .addCase(removeFromCart.fulfilled, (state, action) => {
+        state.loading = false;
+        state.cartItems = action.payload.items || action.payload;
+        state.error = null;
+      })
+      .addCase(removeFromCart.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
       // 1. When the request starts
       .addCase(fetchCart.pending, (state) => {
         state.loading = true;
@@ -40,7 +66,21 @@ const cartSlice = createSlice({
         state.cartItems = [];
         state.loading = false;
         state.error = null;
-      });
+      })
+      /* --- UPDATE QUANTITY (The Missing Piece!) --- */
+      .addCase(updateQuantity.pending, (state) => {
+    
+      })
+      .addCase(updateQuantity.fulfilled, (state, action) => {
+        state.loading = false;
+        // This replaces the old list with the brand new math from the DB
+        state.cartItems = action.payload.cartItems || action.payload;
+        state.error = null;
+      })
+      .addCase(updateQuantity.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
   },
 });
 

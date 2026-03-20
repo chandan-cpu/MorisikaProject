@@ -2,55 +2,14 @@ import React, { useState} from 'react';
 import { Trash2, Plus, Minus, Tag, ShoppingBag } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
-import { fetchCart } from '../../redux/cartThunk';
+import { fetchCart, removeFromCart, updateQuantity } from '../../redux/cartThunk';
+import { toast } from 'react-toastify';
 
 const  Cart=() => {
-  // const [cartItems, setCartItems] = useState([
-  //   {
-  //     id: 1,
-  //     name: 'Apple iPhone 15 Pro',
-  //     color: 'Natural Titanium',
-  //     seller: 'SuperComNet',
-  //     price: 134900,
-  //     originalPrice: 144900,
-  //     discount: 7,
-  //     quantity: 1,
-  //     image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=300&h=300&fit=crop',
-  //     delivery: '3 days',
-  //     freeDelivery: true
-  //   },
-  //   {
-  //     id: 2,
-  //     name: 'Sony WH-1000XM5 Wireless Headphones',
-  //     color: 'Black',
-  //     seller: 'RetailNet',
-  //     price: 24990,
-  //     originalPrice: 33990,
-  //     discount: 26,
-  //     quantity: 1,
-  //     image: 'https://images.unsplash.com/photo-1545127398-14699f92334b?w=300&h=300&fit=crop',
-  //     delivery: '2 days',
-  //     freeDelivery: true
-  //   },
-  //   {
-  //     id: 3,
-  //     name: 'Samsung 43" Crystal 4K TV',
-  //     color: 'Black',
-  //     seller: 'Samsung India',
-  //     price: 28990,
-  //     originalPrice: 44900,
-  //     discount: 35,
-  //     quantity: 1,
-  //     image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=300&h=300&fit=crop',
-  //     delivery: '5 days',
-  //     freeDelivery: false
-  //   }
-  // ]);
+
   const dispatch =useDispatch();
-  // const [cartItems, setCartItems] = useState([]);
-  // const { items, loading, error } = useSelector(state => state.cart);
   const { cartItems, loading, error } = useSelector(state => state.cart);
-  // console.log("Cart Items from Redux:", cartItems); // Debug log
+  console.log("Cart Items from Redux:", cartItems); // Debug log
 
   //Fetch Cart on mount
 
@@ -59,19 +18,38 @@ const  Cart=() => {
     dispatch(fetchCart());
   }, [dispatch]);
 
-  // const updateQuantity = (id, delta) => {
-  //   setCartItems(items =>
-  //     items.map(item =>
-  //       item.id === id
-  //         ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-  //         : item
-  //     )
-  //   );
-  // };
+  //  The REMOVE Handler
+  const handleRemoveItem = (productId) => {
+    // This calls your api.delete(`/cart/remove/${productId}`)
+    dispatch(removeFromCart(productId));
+  };
 
-  // const removeItem = (id) => {
-  //   setCartItems(items => items.filter(item => item.id !== id));
-  // };
+const handleMinus = (productId, currentQuantity) => {
+    const delta = -1; 
+    
+
+    // Now we check the specific item's quantity, not the whole array
+    if (currentQuantity > 1) {
+        dispatch(updateQuantity({ productId, delta }));
+    } else {
+        toast.error("Quantity cannot be less than 1. To remove the item, click on REMOVE.");
+    }
+};
+
+const handlePlus = (productId, currentQuantity) => {
+    const delta = 1; // We know it's an increase
+    console.log("Attempting to increase quantity for product ID:", productId, "Current Quantity:", currentQuantity); // Debug log
+
+    // Now we check the specific item's quantity, not the whole array
+    if (currentQuantity >= 1  && currentQuantity < 5) { // Assuming max stock is 5 for demo
+        console.log("Dispatching update for:", productId);
+        dispatch(updateQuantity({ productId, delta }));
+    } else {
+        toast.error("Quantity cannot be more than the available stock.");
+    }
+};
+
+
 
   const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   // const totalOriginalPrice = cartItems.reduce((sum, item) => sum + item.originalPrice * item.quantity, 0);
@@ -142,21 +120,21 @@ const  Cart=() => {
                       <div className="flex items-center gap-3 sm:gap-4">
                         <div className="flex items-center border border-gray-300 rounded-full">
                           <button
-                            onClick={() => updateQuantity(item.id, -1)}
+                            onClick={() => handleMinus(item.productId, item.quantity)}
                             className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center hover:bg-gray-100 rounded-l-full"
                           >
                             <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
                           </button>
                           <span className="w-8 sm:w-10 text-center text-sm sm:text-base font-medium">{item.quantity}</span>
                           <button
-                            onClick={() => updateQuantity(item.id, 1)}
+                            onClick={() => handlePlus(item.productId, item.quantity)}
                             className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center hover:bg-gray-100 rounded-r-full"
                           >
                             <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
                           </button>
                         </div>
                         <button
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => handleRemoveItem(item.productId)}
                           className="text-xs sm:text-sm font-medium hover:text-red-600 flex items-center gap-1"
                         >
                           <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAllProducts } from '../../redux/productThunk';
+import { addToCart } from '../../redux/cartThunk';
 
 
 // ProductCard Component
@@ -294,8 +295,24 @@ const ProductPage = ({ onProductClick }) => {
 
 // ProductDetails Component
 const ProductDetails = ({ slug, onBackClick }) => {
+  const dispatch =useDispatch();
+
+  // const {cartItems, loading, error } = useSelector(state => state.cart);
+
   const { products } = useSelector((state) => state.product);
   const product = (products || []).find((p) => p.slug === slug);
+
+  const handleAddToCart=(productID)=>{
+    console.log("Adding product to cart with ID:", productID); // Debug log
+    if(product){
+      try {
+        dispatch(addToCart(product._id));
+      } catch (error) {
+        console.error("Error adding to cart:", error);
+      }
+    
+    }
+  }
 
   if (!product) {
     return (
@@ -345,7 +362,10 @@ const ProductDetails = ({ slug, onBackClick }) => {
               </p>
             </div>
             <div className="space-y-2 sm:space-y-3 pt-2 sm:pt-4">
-              <button className="w-full bg-slate-800 text-white px-6 py-2.5 sm:py-3 rounded-lg text-base sm:text-lg font-semibold hover:bg-slate-700 transition shadow-md">
+              <button 
+                className="w-full bg-slate-800 text-white px-6 py-2.5 sm:py-3 rounded-lg text-base sm:text-lg font-semibold hover:bg-slate-700 transition shadow-md"
+                onClick={() => handleAddToCart(product._id)}
+              >
                 Add to Cart
               </button>
               <button className="w-full bg-white text-slate-800 border-2 border-slate-800 px-6 py-2.5 sm:py-3 rounded-lg text-base sm:text-lg font-semibold hover:bg-slate-50 transition">

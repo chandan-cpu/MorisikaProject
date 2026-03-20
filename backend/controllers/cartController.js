@@ -77,5 +77,27 @@ const getCart=async(req,res)=>{
     }
 
 }
+const updateCartItemQuantity= async(req ,res)=>{
+    try {
+        const userId=req.user.id;
+        const {productId, delta} = req.body;
 
-module.exports = { productAddedToCart, removeFromCart, getCart }
+        // Update the quantity mathematically in the database
+        const cart =await Cart.findOneAndUpdate(
+            { user: userId, 'items.product': productId },
+            { $inc: { 'items.$.quantity': delta } },
+            { new: true }
+        )
+        if (!cart) {
+            return res.status(404).json({ msg: "Cart or Product not found" });
+        }
+        // return res.status(200).json({ msg: "Quantity updated successfully", cart });
+
+        const updatedCartData=await getAggregatedCart(userId);
+        return res.status(200).json({ msg: "Quantity updated successfully", cartItems: updatedCartData });
+    } catch (error) {
+        return res.status(500).json({ msg: "Server Error: " + error.message });
+    }
+}
+
+module.exports = { productAddedToCart, removeFromCart, getCart, updateCartItemQuantity }
