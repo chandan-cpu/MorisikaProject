@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { clearError } from "../redux/authSlice";
 
 import { toast } from "react-toastify";
+import { fetchCart } from "../redux/cartThunk";
 
 
 export default function LoginPage() {
@@ -21,6 +22,7 @@ export default function LoginPage() {
   const {loading,isError,errorMessage } = useSelector((state) => state.auth);
     // 🔔 Show toast if login error occurs
   useEffect(() => {
+    // dispatch(fetchCart());
     if (errorMessage) {
       toast.error(errorMessage);
       dispatch(clearError()); // error reset taaki repeat na ho
@@ -36,7 +38,7 @@ const handelSubmit = async (e) => {
   e.preventDefault();
   try {
     const response = await dispatch(loginUser(formData)).unwrap();
-    navigate("/customer");
+    navigate("/cart");
   } catch (err) {
     // Error is already handled by the rejected case in authSlice
     // toast will show via the useEffect above

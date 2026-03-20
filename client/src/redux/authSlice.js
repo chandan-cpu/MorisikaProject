@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { loginUser, fetchUserProfile } from "./authThunk";
+import { loginUser, fetchUserProfile, logoutUser } from "./authThunk";
 
 const initialState = {
   user: null,
@@ -14,9 +14,11 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    logout: (state) => {
+  logout: (state) => {
       state.user = null;
       state.token = null;
+      state.errorMessage = "";
+      state.isError = false;
     },
     clearError(state) {
       state.errorMessage = "";
@@ -55,7 +57,12 @@ const authSlice = createSlice({
           state.loading = false;
           state.isError = true;
           state.errorMessage = action.payload || "Failed to load user profile";
-        });
+        })
+        // If your logoutUser thunk calls the backend to clear cookies:
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.user = null;
+        state.token = null;
+      });
     }
   })
 export const { logout,clearError } = authSlice.actions;

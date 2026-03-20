@@ -1,66 +1,81 @@
-import React, { useState } from 'react';
+import React, { useState} from 'react';
 import { Trash2, Plus, Minus, Tag, ShoppingBag } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { fetchCart } from '../../redux/cartThunk';
 
 const  Cart=() => {
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: 'Apple iPhone 15 Pro',
-      color: 'Natural Titanium',
-      seller: 'SuperComNet',
-      price: 134900,
-      originalPrice: 144900,
-      discount: 7,
-      quantity: 1,
-      image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=300&h=300&fit=crop',
-      delivery: '3 days',
-      freeDelivery: true
-    },
-    {
-      id: 2,
-      name: 'Sony WH-1000XM5 Wireless Headphones',
-      color: 'Black',
-      seller: 'RetailNet',
-      price: 24990,
-      originalPrice: 33990,
-      discount: 26,
-      quantity: 1,
-      image: 'https://images.unsplash.com/photo-1545127398-14699f92334b?w=300&h=300&fit=crop',
-      delivery: '2 days',
-      freeDelivery: true
-    },
-    {
-      id: 3,
-      name: 'Samsung 43" Crystal 4K TV',
-      color: 'Black',
-      seller: 'Samsung India',
-      price: 28990,
-      originalPrice: 44900,
-      discount: 35,
-      quantity: 1,
-      image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=300&h=300&fit=crop',
-      delivery: '5 days',
-      freeDelivery: false
-    }
-  ]);
+  // const [cartItems, setCartItems] = useState([
+  //   {
+  //     id: 1,
+  //     name: 'Apple iPhone 15 Pro',
+  //     color: 'Natural Titanium',
+  //     seller: 'SuperComNet',
+  //     price: 134900,
+  //     originalPrice: 144900,
+  //     discount: 7,
+  //     quantity: 1,
+  //     image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=300&h=300&fit=crop',
+  //     delivery: '3 days',
+  //     freeDelivery: true
+  //   },
+  //   {
+  //     id: 2,
+  //     name: 'Sony WH-1000XM5 Wireless Headphones',
+  //     color: 'Black',
+  //     seller: 'RetailNet',
+  //     price: 24990,
+  //     originalPrice: 33990,
+  //     discount: 26,
+  //     quantity: 1,
+  //     image: 'https://images.unsplash.com/photo-1545127398-14699f92334b?w=300&h=300&fit=crop',
+  //     delivery: '2 days',
+  //     freeDelivery: true
+  //   },
+  //   {
+  //     id: 3,
+  //     name: 'Samsung 43" Crystal 4K TV',
+  //     color: 'Black',
+  //     seller: 'Samsung India',
+  //     price: 28990,
+  //     originalPrice: 44900,
+  //     discount: 35,
+  //     quantity: 1,
+  //     image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=300&h=300&fit=crop',
+  //     delivery: '5 days',
+  //     freeDelivery: false
+  //   }
+  // ]);
+  const dispatch =useDispatch();
+  // const [cartItems, setCartItems] = useState([]);
+  // const { items, loading, error } = useSelector(state => state.cart);
+  const { cartItems, loading, error } = useSelector(state => state.cart);
+  // console.log("Cart Items from Redux:", cartItems); // Debug log
 
-  const updateQuantity = (id, delta) => {
-    setCartItems(items =>
-      items.map(item =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-          : item
-      )
-    );
-  };
+  //Fetch Cart on mount
 
-  const removeItem = (id) => {
-    setCartItems(items => items.filter(item => item.id !== id));
-  };
+  useEffect(()=>{
+    // Dispatch the thunk to fetch cart data
+    dispatch(fetchCart());
+  }, [dispatch]);
+
+  // const updateQuantity = (id, delta) => {
+  //   setCartItems(items =>
+  //     items.map(item =>
+  //       item.id === id
+  //         ? { ...item, quantity: Math.max(1, item.quantity + delta) }
+  //         : item
+  //     )
+  //   );
+  // };
+
+  // const removeItem = (id) => {
+  //   setCartItems(items => items.filter(item => item.id !== id));
+  // };
 
   const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const totalOriginalPrice = cartItems.reduce((sum, item) => sum + item.originalPrice * item.quantity, 0);
-  const totalDiscount = totalOriginalPrice - totalPrice;
+  // const totalOriginalPrice = cartItems.reduce((sum, item) => sum + item.originalPrice * item.quantity, 0);
+  // const totalDiscount = totalOriginalPrice - totalPrice;
   const deliveryCharges = cartItems.some(item => !item.freeDelivery) ? 40 : 0;
   const finalAmount = totalPrice + deliveryCharges;
 
@@ -111,8 +126,8 @@ const  Cart=() => {
                       {/* Price */}
                       <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3 flex-wrap">
                         <span className="text-lg sm:text-2xl font-medium">₹{item.price.toLocaleString('en-IN')}</span>
-                        <span className="text-gray-400 line-through text-xs sm:text-sm">₹{item.originalPrice.toLocaleString('en-IN')}</span>
-                        <span className="text-green-600 text-xs sm:text-sm font-medium">{item.discount}% off</span>
+                        {/* <span className="text-gray-400 line-through text-xs sm:text-sm">₹{item.originalPrice.toLocaleString('en-IN')}</span> */}
+                        <span className="text-green-600 text-xs sm:text-sm font-medium">5 % off</span>
                       </div>
 
                       {/* Delivery Info */}
@@ -168,12 +183,12 @@ const  Cart=() => {
                 <div className="space-y-2 sm:space-y-3 pb-3 sm:pb-4 border-b border-gray-200">
                   <div className="flex justify-between text-sm sm:text-base">
                     <span>Price ({cartItems.reduce((sum, item) => sum + item.quantity, 0)} items)</span>
-                    <span>₹{totalOriginalPrice.toLocaleString('en-IN')}</span>
+                    {/* <span>₹{totalOriginalPrice.toLocaleString('en-IN')}</span> */}
                   </div>
-                  <div className="flex justify-between text-sm sm:text-base">
+                  {/* <div className="flex justify-between text-sm sm:text-base">
                     <span>Discount</span>
                     <span className="text-green-600">−₹{totalDiscount.toLocaleString('en-IN')}</span>
-                  </div>
+                  </div> */}
                   <div className="flex justify-between text-sm sm:text-base">
                     <span>Delivery Charges</span>
                     {deliveryCharges === 0 ? (
@@ -188,9 +203,9 @@ const  Cart=() => {
                   <span>₹{finalAmount.toLocaleString('en-IN')}</span>
                 </div>
                 <div className="bg-green-50 border border-green-200 rounded-sm p-2.5 sm:p-3 mb-4 sm:mb-6">
-                  <p className="text-green-700 font-medium text-xs sm:text-sm">
+                  {/* <p className="text-green-700 font-medium text-xs sm:text-sm">
                     You will save ₹{totalDiscount.toLocaleString('en-IN')} on this order
-                  </p>
+                  </p> */}
                 </div>
                 <button className="w-full bg-orange-500 text-white py-2.5 sm:py-3 rounded-sm font-medium hover:bg-orange-600 hidden lg:block">
                   PLACE ORDER

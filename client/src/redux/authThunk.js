@@ -33,3 +33,15 @@ export const fetchUserProfile=createAsyncThunk(
         }
     }
 )
+
+export const logoutUser=createAsyncThunk(
+    "auth/logoutUser",
+    async(__, {rejectWithValue})=>{
+        try {
+            await axios.post('/auth/logout', {}, { withCredentials: true });
+            return true; // Logout successful
+        } catch (error) {
+            return rejectWithValue("Failed to logout");
+        }
+    }
+)

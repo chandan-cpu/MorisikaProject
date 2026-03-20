@@ -1,45 +1,48 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
+import { fetchCart } from "./cartThunk"; // Import your fetch thunk
+import { logoutUser } from "./authThunk";
 
 const cartSlice = createSlice({
-  name: 'cart',
+  name: "cart",
   initialState: {
-    items: [],
+    cartItems: [],      // This will hold the aggregated product data
+    loading: false, // For showing a spinner while fetching
+    error: null,    // For showing error messages
   },
   reducers: {
-    addToCart: (state, action) => {
-      const product = action.payload;
-      const existingItem = state.items.find((item) => item._id === product._id);
-
-      if (existingItem) {
-        existingItem.quantity += 1;
-      } else {
-        state.items.push({
-          _id: product._id,
-          name: product.name,
-          price: product.discountPrice > 0 ? product.discountPrice : product.price,
-          originalPrice: product.price,
-          discount: product.discountPrice > 0 ? Math.round(((product.price - product.discountPrice) / product.price) * 100) : 0,
-          quantity: 1,
-          image: product.images?.[0] || product.image,
-          color: "Standard", // Default values
-          seller: "Official Store",
-          delivery: "3 days",
-          freeDelivery: true
-        });
-      }
-    },
-    updateQuantity: (state, action) => {
-      const { _id, delta } = action.payload;
-      const item = state.items.find((i) => i._id === _id);
-      if (item) {
-        item.quantity = Math.max(1, item.quantity + delta);
-      }
-    },
-    removeItem: (state, action) => {
-      state.items = state.items.filter((item) => item._id !== action.payload);
-    },
+    // Standard reducer to reset state (useful on logout)
+    resetCartState: (state) => {
+      state.cartItems = [];
+      state.error = null;
+      state.loading = false;
+    }
+  },
+  extraReducers: (builder) => {
+    builder
+      // 1. When the request starts
+      .addCase(fetchCart.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      // 2. When data is successfully received
+      .addCase(fetchCart.fulfilled, (state, action) => {
+        state.loading = false;
+        // action.payload is the array returned from your Aggregation Pipeline
+        state.cartItems = action.payload.cartItems;
+      })
+      // 3. When the request fails
+      .addCase(fetchCart.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload; // "Failed to fetch cart" or server error
+      })
+      // Clear cart on logout (assuming logoutUser is an async thunk that clears cookies/session on the backend)
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.cartItems = [];
+        state.loading = false;
+        state.error = null;
+      });
   },
 });
 
-export const { addToCart, updateQuantity, removeItem } = cartSlice.actions;
+export const { resetCartState } = cartSlice.actions;
 export default cartSlice.reducer;
