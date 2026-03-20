@@ -55,9 +55,11 @@ const removeFromCart = async (req, res) => {
             return res.status(404).json({ msg: "Cart not found" });
         }
 
+        const updatedCartData = await getAggregatedCart(userId);
+
         return res.status(200).json({
             msg: "Item removed successfully",
-            cart: updatedCart
+            cartItems: updatedCartData
         })
 
     } catch (error) {

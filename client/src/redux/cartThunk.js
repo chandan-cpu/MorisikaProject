@@ -37,7 +37,7 @@ export const removeFromCart = createAsyncThunk(
         try {
             const response = await api.delete(`/cart/remove/${productId}`);
             toast.success(response.data.msg);
-            return response; // Updated list after deletion
+            return response.data.cartItems; // Updated list after deletion
         } catch (error) {
             return rejectWithValue(error.response?.data?.msg || "Failed to remove item");
         }
