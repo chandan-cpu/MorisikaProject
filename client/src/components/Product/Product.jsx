@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchAllProducts } from '../../redux/productThunk';
 import { addToCart } from '../../redux/cartThunk';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 
 // ProductCard Component
@@ -297,6 +298,7 @@ const ProductPage = ({ onProductClick }) => {
 // ProductDetails Component
 const ProductDetails = ({ slug, onBackClick }) => {
   const dispatch =useDispatch();
+  const navigate = useNavigate();
 
   // const {cartItems, loading, error } = useSelector(state => state.cart);
 
@@ -307,6 +309,7 @@ const ProductDetails = ({ slug, onBackClick }) => {
   const handleAddToCart=(productID)=>{
     if(!user){
       toast.error("Please login to add products to cart");
+      return;
     }
     
     console.log("Adding product to cart with ID:", productID); // Debug log
@@ -320,9 +323,22 @@ const ProductDetails = ({ slug, onBackClick }) => {
     }
   }
 
-  const buyNowHandler=()=>{
+  const buyNowHandler=async()=>{
     if(!user){
       toast.error("Please login to buy products");
+      return;
+    }
+
+    if (!product?._id) {
+      toast.error("Product not available");
+      return;
+    }
+
+    try {
+      await dispatch(addToCart(product._id)).unwrap();
+      navigate('/cart');
+    } catch (error) {
+      toast.error(error || "Unable to continue to checkout");
     }
   }
 

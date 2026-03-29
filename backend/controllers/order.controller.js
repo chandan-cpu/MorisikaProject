@@ -155,5 +155,74 @@ const createOrderWithAddress = async (rq, res) => {
     }
 }
 
+const getOrderTrackingDetails = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { orderId } = req.params;
 
-module.exports = { initialCheackout, createOrderWithAddress };
+        const order = await Order.findOne({ user: userId, orderId })
+            .populate('items.product', 'name images');
+
+        if (!order) {
+            return res.status(404).json({ msg: 'Order not found' });
+        }
+
+        return res.status(200).json({
+            msg: 'Order fetched successfully',
+            order,
+        });
+    } catch (error) {
+        return res.status(500).json({ msg: 'Server Error:' + error.message });
+    }
+}
+
+const getUserOrders = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const orders = await Order.find({ user: userId })
+            .populate('items.product', 'name images')
+            .sort({ createdAt: -1 });
+
+        return res.status(200).json({
+            msg: 'Orders fetched successfully',
+            orders,
+        });
+    } catch (error) {
+        return res.status(500).json({ msg: 'Server Error:' + error.message });
+    }
+}
+
+const cancelOrderByUser = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { orderId } = req.params;
+
+        const order = await Order.findOne({ user: userId, orderId });
+        if (!order) {
+            return res.status(404).json({ msg: 'Order not found' });
+        }
+
+        const nonCancellableStatuses = ['shipped', 'delivered', 'cancelled'];
+        if (nonCancellableStatuses.includes(order.status)) {
+            return res.status(400).json({ msg: `Order cannot be cancelled when status is ${order.status}` });
+        }
+
+        order.status = 'cancelled';
+        if (order.paymentStatus === 'pending') {
+            order.paymentStatus = 'failed';
+        }
+
+        await order.save();
+
+        return res.status(200).json({
+            msg: 'Order cancelled successfully',
+            order,
+        });
+    } catch (error) {
+        return res.status(500).json({ msg: 'Server Error:' + error.message });
+    }
+}
+
+
+module.exports = { initialCheackout, createOrderWithAddress, getOrderTrackingDetails, getUserOrders, cancelOrderByUser };

@@ -9,9 +9,11 @@ import {
 } from "../../redux/cartThunk";
 import { toast } from "react-toastify";
 import api from "../../axios";
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { cartItems, loading, error } = useSelector((state) => state.cart);
   console.log("Cart Items from Redux:", cartItems); // Debug log
   const [showCheckoutForm, setShowCheckoutForm] = useState(false);
@@ -147,6 +149,7 @@ const Cart = () => {
       toast.success("Opening WhatsApp with your payment request...");
       dispatch(fetchCart());
       window.open(generatedWhatsAppLink, "_blank", "noopener,noreferrer");
+      navigate(`/track-order/${orderId}`);
     } catch (checkoutError) {
       toast.error(
         checkoutError.response?.data?.msg ||

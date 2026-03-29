@@ -93,6 +93,12 @@ const Navbar = ({ onCartClick }) => {
             >
               Testimonial
             </Link>
+               <Link
+              to="/track-order"
+              className="text-gray-700 hover:text-teal-700 font-medium transition-colors"
+            >
+              orders
+            </Link>
           </div>
 
           <div className="flex items-center gap-3">

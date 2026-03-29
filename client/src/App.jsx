@@ -18,6 +18,7 @@ import { fetchUserProfile } from "./redux/authThunk";
 import Testimonial from "./components/Testimonial";
 import CustomOrderSection from "./components/CustomOrderSection";
 import Cart from "./components/Product/Cart";
+import TrackOrder from "./pages/TrackOrder";
 
 import { Sidebar } from "lucide-react";
 import SideMenu from "./admin/components/layouts/SideMenu";
@@ -77,6 +78,8 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/custom" element={<CustomOrderSection />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/track-order" element={<TrackOrder />} />
+        <Route path="/track-order/:orderId" element={<TrackOrder />} />
 
         {/* Protected Route (only after login) */}
         <Route
