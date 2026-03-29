@@ -14,7 +14,7 @@ const PORT=process.env.PORT
 
 // CORS Configuration
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174'], // Support both Vite ports
+  origin: ['https://x8xp936p-5173.inc1.devtunnels.ms', 'https://x8xp936p-5174.inc1.devtunnels.ms','http://localhost:5173'], // Support both Vite ports
   credentials: true // Allow cookies
 }));
 

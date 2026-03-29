@@ -8,11 +8,25 @@ import {
   updateQuantity,
 } from "../../redux/cartThunk";
 import { toast } from "react-toastify";
+import api from "../../axios";
 
 const Cart = () => {
   const dispatch = useDispatch();
   const { cartItems, loading, error } = useSelector((state) => state.cart);
   console.log("Cart Items from Redux:", cartItems); // Debug log
+  const [showCheckoutForm, setShowCheckoutForm] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [latestWhatsAppLink, setLatestWhatsAppLink] = useState("");
+  const [shippingAddress, setShippingAddress] = useState({
+    fullName: "",
+    phone: "",
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    state: "",
+    pincode: "",
+    country: "India",
+  });
 
   //Fetch Cart on mount
 
@@ -59,8 +73,93 @@ const Cart = () => {
     }
   };
 
+  const handleAddressChange = (event) => {
+    const { name, value } = event.target;
+    setShippingAddress((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleOpenCheckout = () => {
+    setShowCheckoutForm(true);
+  };
+
+  const handleWhatsAppPayment = async () => {
+    const requiredFields = [
+      "fullName",
+      "phone",
+      "addressLine1",
+      "city",
+      "state",
+      "pincode",
+    ];
+
+    const missingField = requiredFields.find((field) => !shippingAddress[field]);
+    if (missingField) {
+      toast.error("Please fill all required address fields.");
+      return;
+    }
+
+    try {
+      setIsProcessingPayment(true);
+      const response = await api.post("/cart/checkout", {
+        shippingAddress,
+        paymentMethod: "whatsapp",
+      });
+
+      const orderId = response?.data?.orderId;
+      const payableAmount = response?.data?.totalAmount;
+      const merchantWhatsAppNumber = response?.data?.merchantWhatsAppNumber;
+
+      if (!orderId || !payableAmount) {
+        toast.error("Unable to prepare payment request. Please try again.");
+        return;
+      }
+
+      const fullAddress = [
+        shippingAddress.addressLine1,
+        shippingAddress.addressLine2,
+        shippingAddress.city,
+        shippingAddress.state,
+        shippingAddress.pincode,
+        shippingAddress.country,
+      ]
+        .filter(Boolean)
+        .join(", ");
+
+      const paymentMessage = [
+        "Hello, I want to place an order.",
+        `Order ID: ${orderId}`,
+        `Amount to Pay: INR ${Number(payableAmount).toFixed(2)}`,
+        `Name: ${shippingAddress.fullName}`,
+        `Phone: ${shippingAddress.phone}`,
+        `Shipping Address: ${fullAddress}`,
+        "Please share payment confirmation details.",
+      ].join("\n");
+
+      const encodedMessage = encodeURIComponent(paymentMessage);
+      const generatedWhatsAppLink = merchantWhatsAppNumber
+        ? `https://wa.me/${merchantWhatsAppNumber}?text=${encodedMessage}`
+        : `https://wa.me/?text=${encodedMessage}`;
+
+      setLatestWhatsAppLink(generatedWhatsAppLink);
+      toast.success("Opening WhatsApp with your payment request...");
+      dispatch(fetchCart());
+      window.open(generatedWhatsAppLink, "_blank", "noopener,noreferrer");
+    } catch (checkoutError) {
+      toast.error(
+        checkoutError.response?.data?.msg ||
+          checkoutError.response?.data?.error ||
+          "Checkout failed. Please try again.",
+      );
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
+
   const totalPrice = Array.isArray(cartItems)
-    ? cartItems.reduce((acc, item) => acc + item.price, 0)
+    ? cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
     : 0;
   // const totalOriginalPrice = cartItems.reduce((sum, item) => sum + item.originalPrice * item.quantity, 0);
   // const totalDiscount = totalOriginalPrice - totalPrice;
@@ -107,7 +206,7 @@ const Cart = () => {
                 >
                   <div className="flex gap-3 sm:gap-4">
                     {/* Product Image */}
-                    <div className="w-20 h-20 sm:w-28 sm:h-28 flex-shrink-0">
+                    <div className="w-20 h-20 sm:w-28 sm:h-28 shrink-0">
                       <div
                         className="w-full aspect-square bg-cover bg-center rounded"
                         style={{ backgroundImage: `url(${item.image})` }}
@@ -187,7 +286,10 @@ const Cart = () => {
 
               {/* Place Order Button (Mobile) */}
               <div className="lg:hidden sticky bottom-0 bg-white shadow-lg border-t border-gray-200 p-3 -mx-2 sm:-mx-4">
-                <button className="w-full bg-orange-500 text-white py-3 sm:py-4 rounded-sm font-medium text-base sm:text-lg hover:bg-orange-600">
+                <button
+                  onClick={handleOpenCheckout}
+                  className="w-full bg-orange-500 text-white py-3 sm:py-4 rounded-sm font-medium text-base sm:text-lg hover:bg-orange-600"
+                >
                   PLACE ORDER
                 </button>
               </div>
@@ -230,9 +332,101 @@ const Cart = () => {
                     You will save ₹{totalDiscount.toLocaleString('en-IN')} on this order
                   </p> */}
                 </div>
-                <button className="w-full bg-orange-500 text-white py-2.5 sm:py-3 rounded-sm font-medium hover:bg-orange-600 hidden lg:block">
+                <button
+                  onClick={handleOpenCheckout}
+                  className="w-full bg-orange-500 text-white py-2.5 sm:py-3 rounded-sm font-medium hover:bg-orange-600 hidden lg:block"
+                >
                   PLACE ORDER
                 </button>
+
+                {showCheckoutForm && (
+                  <div className="mt-6 border-t border-gray-200 pt-4 space-y-3">
+                    <h3 className="text-sm sm:text-base font-semibold text-gray-800">
+                      Shipping Address
+                    </h3>
+
+                    <input
+                      name="fullName"
+                      value={shippingAddress.fullName}
+                      onChange={handleAddressChange}
+                      placeholder="Full Name *"
+                      className="w-full border border-gray-300 rounded-sm px-3 py-2 text-sm"
+                    />
+                    <input
+                      name="phone"
+                      value={shippingAddress.phone}
+                      onChange={handleAddressChange}
+                      placeholder="Phone Number *"
+                      className="w-full border border-gray-300 rounded-sm px-3 py-2 text-sm"
+                    />
+                    <input
+                      name="addressLine1"
+                      value={shippingAddress.addressLine1}
+                      onChange={handleAddressChange}
+                      placeholder="Address Line 1 *"
+                      className="w-full border border-gray-300 rounded-sm px-3 py-2 text-sm"
+                    />
+                    <input
+                      name="addressLine2"
+                      value={shippingAddress.addressLine2}
+                      onChange={handleAddressChange}
+                      placeholder="Address Line 2"
+                      className="w-full border border-gray-300 rounded-sm px-3 py-2 text-sm"
+                    />
+                    <input
+                      name="city"
+                      value={shippingAddress.city}
+                      onChange={handleAddressChange}
+                      placeholder="City *"
+                      className="w-full border border-gray-300 rounded-sm px-3 py-2 text-sm"
+                    />
+                    <input
+                      name="state"
+                      value={shippingAddress.state}
+                      onChange={handleAddressChange}
+                      placeholder="State *"
+                      className="w-full border border-gray-300 rounded-sm px-3 py-2 text-sm"
+                    />
+                    <input
+                      name="pincode"
+                      value={shippingAddress.pincode}
+                      onChange={handleAddressChange}
+                      placeholder="Pincode *"
+                      className="w-full border border-gray-300 rounded-sm px-3 py-2 text-sm"
+                    />
+                    <input
+                      name="country"
+                      value={shippingAddress.country}
+                      onChange={handleAddressChange}
+                      placeholder="Country"
+                      className="w-full border border-gray-300 rounded-sm px-3 py-2 text-sm"
+                    />
+
+                    <h3 className="text-sm sm:text-base font-semibold text-gray-800 pt-2">
+                      WhatsApp Payment Request
+                    </h3>
+                    <p className="text-xs sm:text-sm text-gray-600">
+                      Tap below to open WhatsApp and send your address + payment request.
+                    </p>
+
+                    <button
+                      onClick={handleWhatsAppPayment}
+                      disabled={isProcessingPayment}
+                      className="w-full bg-green-600 text-white py-2.5 rounded-sm font-medium hover:bg-green-700 disabled:opacity-60"
+                    >
+                      {isProcessingPayment ? "Processing..." : "Request Payment on WhatsApp"}
+                    </button>
+
+                    {latestWhatsAppLink && (
+                      <a
+                        href={latestWhatsAppLink}
+                        className="block text-xs text-blue-600 break-all"
+                      >
+                        If WhatsApp did not open, tap here: {latestWhatsAppLink}
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Offers Card */}

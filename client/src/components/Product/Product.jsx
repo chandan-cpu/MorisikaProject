@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAllProducts } from '../../redux/productThunk';
 import { addToCart } from '../../redux/cartThunk';
+import { toast } from 'react-toastify';
 
 
 // ProductCard Component
@@ -301,8 +302,13 @@ const ProductDetails = ({ slug, onBackClick }) => {
 
   const { products } = useSelector((state) => state.product);
   const product = (products || []).find((p) => p.slug === slug);
+  const {user}=useSelector((state)=>state.auth);
 
   const handleAddToCart=(productID)=>{
+    if(!user){
+      toast.error("Please login to add products to cart");
+    }
+    
     console.log("Adding product to cart with ID:", productID); // Debug log
     if(product){
       try {
@@ -311,6 +317,12 @@ const ProductDetails = ({ slug, onBackClick }) => {
         console.error("Error adding to cart:", error);
       }
     
+    }
+  }
+
+  const buyNowHandler=()=>{
+    if(!user){
+      toast.error("Please login to buy products");
     }
   }
 
@@ -368,7 +380,10 @@ const ProductDetails = ({ slug, onBackClick }) => {
               >
                 Add to Cart
               </button>
-              <button className="w-full bg-white text-slate-800 border-2 border-slate-800 px-6 py-2.5 sm:py-3 rounded-lg text-base sm:text-lg font-semibold hover:bg-slate-50 transition">
+              <button 
+                className="w-full bg-white text-slate-800 border-2 border-slate-800 px-6 py-2.5 sm:py-3 rounded-lg text-base sm:text-lg font-semibold hover:bg-slate-50 transition"
+                onClick={buyNowHandler}
+              >
                 Buy Now
               </button>
             </div>
