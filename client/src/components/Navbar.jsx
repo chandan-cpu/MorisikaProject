@@ -146,36 +146,48 @@ const Navbar = ({ onCartClick }) => {
 
         {mobileMenuOpen && (
           <div className="md:hidden py-4 space-y-2">
-            <a
-              href="/"
+            <Link
+              to="/"
               className="block text-gray-700 hover:text-teal-700 py-2"
+              onClick={() => setMobileMenuOpen(false)}
             >
               Home
-            </a>
-            <a
-              href="/browse"
+            </Link>
+            <Link
+              to="/browse"
               className="block text-gray-700 hover:text-teal-700 py-2"
+              onClick={() => setMobileMenuOpen(false)}
             >
               Services
-            </a>
-            <a
-              href="/inspiration"
+            </Link>
+            <Link
+              to="/inspiration"
               className="block text-gray-700 hover:text-teal-700 py-2"
+              onClick={() => setMobileMenuOpen(false)}
             >
               Creations
-            </a>
-            <a
-              href="/browse"
+            </Link>
+            <Link
+              to="/browse"
               className="block text-gray-700 hover:text-teal-700 py-2"
+              onClick={() => setMobileMenuOpen(false)}
             >
               Products
-            </a>
-            <a
-              href="/testimonial"
+            </Link>
+            <Link
+              to="/testimonial"
               className="block text-gray-700 hover:text-teal-700 py-2"
+              onClick={() => setMobileMenuOpen(false)}
             >
               Testimonial
-            </a>
+            </Link>
+            <Link
+              to="/track-order"
+              className="block text-gray-700 hover:text-teal-700 py-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Orders
+            </Link>
           </div>
         )}
       </div>

@@ -194,7 +194,10 @@ const Cart = () => {
             <p className="text-sm sm:text-base text-gray-600 mb-4">
               Add items to it now.
             </p>
-            <button className="bg-blue-600 text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-sm font-medium hover:bg-blue-700">
+            <button
+              onClick={() => navigate("/browse")}
+              className="bg-blue-600 text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-sm font-medium hover:bg-blue-700"
+            >
               Shop now
             </button>
           </div>
