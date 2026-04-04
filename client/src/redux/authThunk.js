@@ -1,6 +1,18 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from '../axios';
 
+export const registerUser = createAsyncThunk(
+    "auth/registerUser",
+    async (formData, thunkAPI) => {
+        try {
+            const response = await axios.post('/auth/register', formData);
+            return response.data;
+        } catch (error) {
+            return thunkAPI.rejectWithValue(error.response?.data || { msg: "Signup Failed" });
+        }
+    }
+)
+
 export const loginUser=createAsyncThunk(
     "auth/loginUser",
     async(formData,thunkAPI)=>{
@@ -9,7 +21,7 @@ export const loginUser=createAsyncThunk(
             console.log("Response Data:", response.data);
             return response.data; // { user }
         }catch(error){
-            return thunkAPI.rejectWithValue(error.response.data);
+            return thunkAPI.rejectWithValue(error.response?.data || { msg: "Login Failed" });
         }
     }
 )

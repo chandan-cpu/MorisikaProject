@@ -9,6 +9,7 @@ import { Route, Routes } from "react-router-dom";
 import Product from "./components/Product/Product";
 
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
@@ -76,6 +77,7 @@ export default function App() {
         <Route path="/products" element={<Product />} />
         <Route path="/product/:slug" element={<Product />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
         <Route path="/custom" element={<CustomOrderSection />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/track-order" element={<TrackOrder />} />

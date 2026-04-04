@@ -12,6 +12,9 @@ require('dotenv').config();
 const app=express();
 const PORT=process.env.PORT
 
+// Set custom DNS servers to resolve MongoDB SRV records
+dns.setServers(['1.1.1.1', '8.8.8.8']);
+
 // CORS Configuration
 app.use(cors({
   origin: ['https://x8xp936p-5173.inc1.devtunnels.ms', 'https://x8xp936p-5174.inc1.devtunnels.ms','http://localhost:5173'], // Support both Vite ports

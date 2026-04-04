@@ -116,12 +116,20 @@ const Navbar = ({ onCartClick }) => {
             </button>
 
             {!user && (
-              <Link
-                to="/login"
-                className="block text-gray-700 hover:text-teal-700 py-2"
-              >
-                Login
-              </Link>
+              <>
+                <Link
+                  to="/login"
+                  className="block text-gray-700 hover:text-teal-700 py-2"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className="block text-gray-700 hover:text-teal-700 py-2"
+                >
+                  Sign Up
+                </Link>
+              </>
             )}
 
             {/* Token valid hai */}
