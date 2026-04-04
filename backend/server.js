@@ -42,7 +42,7 @@ app.use(cookieParser());
 
 
 app.use('/api/auth',authRoutes);
-// app.use('/api/upload',cloudeRoute);
+app.use('/api/upload',cloudeRoute);
 
 //Product Routes
 app.use('/api/product',productRoutes);
