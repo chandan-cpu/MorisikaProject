@@ -5,12 +5,10 @@ const bcrypt=require('bcryptjs');
 const { sendOTP, resetOTP } = require('./otp.controller');
 
 const getAuthCookieOptions = () => {
-    const isProduction = process.env.NODE_ENV === 'production';
-
     return {
         httpOnly: true,
-        secure: isProduction,
-        sameSite: isProduction ? 'none' : 'lax',
+        secure: true,        // 🔥 FORCE TRUE
+        sameSite: 'None',    // 🔥 FORCE NONE
         maxAge: 24 * 60 * 60 * 1000,
     };
 };
