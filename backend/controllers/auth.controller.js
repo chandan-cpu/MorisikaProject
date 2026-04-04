@@ -4,6 +4,17 @@ const jwt = require('jsonwebtoken');
 const bcrypt=require('bcryptjs');
 const { sendOTP, resetOTP } = require('./otp.controller');
 
+const getAuthCookieOptions = () => {
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    return {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+        maxAge: 24 * 60 * 60 * 1000,
+    };
+};
+
 const userRegister=async(req,res)=>{
     const {name,email,password,Phonenumber,role}=req.body;
     try{
@@ -59,11 +70,7 @@ const userLogin=async(req,res)=>{
         const token=user.generateToken();
 
         // 4. Set cookie ONLY after all checks pass
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: false, // true in production
-            maxAge: 24 * 60 * 60 * 1000, // 1 day
-        })
+        res.cookie('token', token, getAuthCookieOptions())
 
         return res.status(200).json({
             msg:"User Login Successfully",
@@ -107,7 +114,12 @@ const forgetPassword=async(req,res)=>{
 }
 
 const logOut=async(req,res)=>{
-    res.clearCookie('token');
+    const cookieOptions = getAuthCookieOptions();
+    res.clearCookie('token', {
+        httpOnly: cookieOptions.httpOnly,
+        secure: cookieOptions.secure,
+        sameSite: cookieOptions.sameSite,
+    });
     return res.status(200).json({msg:'User logged out successfully'});
 }
 
