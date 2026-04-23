@@ -18,10 +18,7 @@ app.set('trust proxy', 1);
 dns.setServers(['1.1.1.1', '8.8.8.8']);
 
 const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:4173',
-  'https://x8xp936p-5173.inc1.devtunnels.ms',
-  'https://x8xp936p-5174.inc1.devtunnels.ms',
+  'https://morisikaproject-4.onrender.com',
   process.env.FRONTEND_URL,
   ...(process.env.FRONTEND_URLS ? process.env.FRONTEND_URLS.split(',').map((url) => url.trim()) : []),
 ].filter(Boolean);
