@@ -4,43 +4,43 @@ import { Star } from 'lucide-react';
 const Testimonial = () => {
   const testimonials = [
     {
-      name: "Sarah Mitchell",
-      location: "Portland, OR",
+      name: "Dipali Sonowal",
+      location: "Lakhimpur, Assam",
       text: "The handcrafted jewelry I ordered exceeded all expectations. The attention to detail is incredible!",
       rating: 5,
       product: "Silver Moon Necklace"
     },
     {
-      name: "James Chen",
-      location: "Austin, TX",
+      name: "Raj Boruah",
+      location: "Guwahati, Assam",
       text: "Beautiful handmade pottery. Each piece feels unique and special. Will definitely order again!",
       rating: 5,
       product: "Ceramic Bowl Set"
     },
     {
-      name: "Emily Rodriguez",
-      location: "Seattle, WA",
+      name: "Riya Das",
+      location: "Guwahati, Assam",
       text: "The quality of the handwoven scarf is outstanding. You can feel the love in every stitch.",
       rating: 5,
       product: "Wool Winter Scarf"
     },
     {
-      name: "Michael Thompson",
-      location: "Denver, CO",
+      name: "Ankit Sharma",
+      location: "Delhi, India",
       text: "Amazing craftsmanship! The leather wallet is perfect and arrived beautifully packaged.",
       rating: 5,
       product: "Hand-stitched Wallet"
     },
     {
-      name: "Lisa Park",
-      location: "Boston, MA",
+      name: "Himashri Saikia",
+      location: "Dibrugarh, Assam",
       text: "These handmade candles smell divine and burn evenly. Best purchase I've made all year!",
       rating: 5,
       product: "Lavender Soy Candles"
     },
     {
-      name: "David Wilson",
-      location: "Chicago, IL",
+      name: "Suman Das",
+      location: "Tezpur, Assam",
       text: "The wooden cutting board is a work of art. Functional and gorgeous in my kitchen!",
       rating: 5,
       product: "Walnut Cutting Board"

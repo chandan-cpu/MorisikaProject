@@ -1,11 +1,14 @@
-import { Upload } from "lucide-react";
+import { Upload, X } from "lucide-react";
 import { useRef } from "react";
 import { useState } from "react";
+import { toast } from "react-toastify";
+import api from "../axios";
 
 const CustomOrderSection = () => {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     contact: '',
@@ -52,12 +55,13 @@ const CustomOrderSection = () => {
         setUploadedFile({
           name: file.name,
           size: (file.size / 1024).toFixed(2),
-          preview: e.target.result
+          preview: e.target.result,
+          rawFile: file,
         });
       };
       reader.readAsDataURL(file);
     } else {
-      alert('Please upload a JPG, PNG, or WEBP image file.');
+      toast.error('Please upload a JPG, PNG, or WEBP image file.');
     }
   };
 
@@ -69,16 +73,42 @@ const CustomOrderSection = () => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!uploadedFile) {
-      alert('Please upload a reference photo');
+      toast.error('Please upload a reference photo');
       return;
     }
     if (!formData.name || !formData.contact) {
-      alert('Please fill in your name and contact information');
+      toast.error('Please fill in your name and contact information');
       return;
     }
-    alert(`Custom order submitted!\nName: ${formData.name}\nContact: ${formData.contact}\nFile: ${uploadedFile.name}`);
+
+    try {
+      setIsSubmitting(true);
+
+      const payload = new FormData();
+      payload.append('name', formData.name.trim());
+      payload.append('contact', formData.contact.trim());
+      payload.append('info', formData.info.trim());
+      payload.append('referenceImage', uploadedFile.rawFile);
+
+      const response = await api.post('/upload/custom-order', payload, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      const whatsappLink = response?.data?.whatsappLink;
+      if (!whatsappLink) {
+        toast.error('WhatsApp link not generated. Please try again.');
+        return;
+      }
+
+      toast.success('Custom order submitted. Redirecting to WhatsApp...');
+      window.open(whatsappLink, '_blank', 'noopener,noreferrer');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to submit custom order');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -93,7 +123,7 @@ const CustomOrderSection = () => {
           </p>
         </div>
 
-        <div className="bg-gradient-to-br from-gray-50 to-teal-50 rounded-3xl shadow-xl p-8">
+        <div className="bg-linear-to-br from-gray-50 to-teal-50 rounded-3xl shadow-xl p-8">
           <div className="mb-6">
             <label className="block text-sm font-bold text-gray-700 mb-3">
               Upload Reference Photo
@@ -214,9 +244,10 @@ const CustomOrderSection = () => {
 
           <button
             onClick={handleSubmit}
+            disabled={isSubmitting}
             className="w-full mt-8 bg-teal-700 text-white py-4 rounded-full hover:bg-teal-800 transition-all font-bold text-lg shadow-xl transform hover:scale-105"
           >
-            Submit Custom Order
+            {isSubmitting ? 'Submitting...' : 'Submit Custom Order'}
           </button>
         </div>
       </div>
