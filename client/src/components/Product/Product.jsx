@@ -403,11 +403,6 @@ const ProductDetails = ({ slug, onBackClick }) => {
                 Buy Now
               </button>
             </div>
-            <div className="pt-2 sm:pt-4 border-t border-gray-200 space-y-2 text-xs sm:text-sm text-gray-600">
-              <p>✓ Free shipping on orders over $50</p>
-              <p>✓ 30-day money-back guarantee</p>
-              <p>✓ 1-year warranty included</p>
-            </div>
           </div>
         </div>
       </div>
